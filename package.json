@@ -1,0 +1,32 @@
+{
+  "name": "yuna-landing-pages",
+  "version": "1.0.0",
+  "description": "Landing Pages da Yuna - Unidade de Transição de Cuidados especializada em Reabilitação Neurológica",
+  "main": "index.html",
+  "scripts": {
+    "dev": "npx live-server --port=3001 --open=medicos.html",
+    "dev:pacientes": "npx live-server --port=3001 --open=pacientes.html",
+    "build": "echo 'Build concluído - arquivos prontos para produção'",
+    "deploy": "vercel --prod",
+    "deploy:preview": "vercel",
+    "vercel-build": "echo 'Vercel build completed'"
+  },
+  "keywords": [
+    "landing-page",
+    "healthcare",
+    "rehabilitation",
+    "yuna",
+    "medical"
+  ],
+  "author": "Yuna",
+  "license": "ISC",
+  "devDependencies": {
+    "live-server": "^1.2.2"
+  },
+  "dependencies": {},
+  "repository": {
+    "type": "git",
+    "url": ""
+  }
+}
+
