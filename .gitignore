@@ -35,3 +35,7 @@ build/
 tmp/
 temp/
 
+# Video files (too large for GitHub)
+public/videos/*.mp4
+*.mp4
+
