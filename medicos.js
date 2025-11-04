@@ -304,6 +304,172 @@ ctaButtons.forEach(btn => {
     });
 });
 
+// ===== CARROSSEL DE HISTÓRIAS =====
+const historiasCarouselTrack = document.querySelector('.historias-carousel-track');
+const historiasSlides = document.querySelectorAll('.historias-slide');
+const historiasPrevBtn = document.querySelector('.historias-carousel-prev');
+const historiasNextBtn = document.querySelector('.historias-carousel-next');
+const historiasVideoModal = document.getElementById('historiasVideoModal');
+const historiasModalVideo = document.getElementById('historiasModalVideo');
+const historiasModalClose = document.querySelector('.historias-video-modal-close');
+
+let historiasCurrentSlide = 0;
+
+// Atualizar posição do carrossel
+function updateHistoriasCarousel() {
+    if (historiasSlides.length === 0) return;
+    
+    const slideWidth = historiasSlides[0].offsetWidth;
+    const offset = -historiasCurrentSlide * slideWidth;
+    historiasCarouselTrack.style.transform = `translateX(${offset}px)`;
+    
+    // Atualizar estado dos botões
+    if (historiasPrevBtn) {
+        historiasPrevBtn.disabled = historiasCurrentSlide === 0;
+        historiasPrevBtn.style.opacity = historiasCurrentSlide === 0 ? '0.5' : '1';
+    }
+    
+    if (historiasNextBtn) {
+        historiasNextBtn.disabled = historiasCurrentSlide >= historiasSlides.length - 1;
+        historiasNextBtn.style.opacity = historiasCurrentSlide >= historiasSlides.length - 1 ? '0.5' : '1';
+    }
+    
+    // Pausar todos os vídeos e resetar
+    historiasSlides.forEach((slide, index) => {
+        const video = slide.querySelector('video');
+        if (video) {
+            if (index !== historiasCurrentSlide) {
+                video.pause();
+                video.currentTime = 0;
+            }
+        }
+    });
+}
+
+// Navegar para o próximo slide
+function nextHistoriasSlide() {
+    if (historiasCurrentSlide < historiasSlides.length - 1) {
+        historiasCurrentSlide++;
+        updateHistoriasCarousel();
+    }
+}
+
+// Navegar para o slide anterior
+function prevHistoriasSlide() {
+    if (historiasCurrentSlide > 0) {
+        historiasCurrentSlide--;
+        updateHistoriasCarousel();
+    }
+}
+
+// Event listeners para os botões do carrossel
+if (historiasNextBtn) {
+    historiasNextBtn.addEventListener('click', nextHistoriasSlide);
+}
+
+if (historiasPrevBtn) {
+    historiasPrevBtn.addEventListener('click', prevHistoriasSlide);
+}
+
+// Auto-play do vídeo ao passar o mouse (apenas no slide atual)
+function setupVideoHover() {
+    historiasSlides.forEach(slide => {
+        const videoThumbnail = slide.querySelector('.historias-video-thumbnail');
+        if (videoThumbnail) {
+            const video = videoThumbnail.querySelector('video');
+            
+            if (video) {
+                videoThumbnail.addEventListener('mouseenter', () => {
+                    // Só reproduzir se este slide estiver visível
+                    if (slide === historiasSlides[historiasCurrentSlide]) {
+                        video.play().catch(err => console.log('Erro ao reproduzir vídeo:', err));
+                    }
+                });
+                
+                videoThumbnail.addEventListener('mouseleave', () => {
+                    video.pause();
+                    video.currentTime = 0;
+                });
+                
+                // Abrir modal ao clicar no vídeo
+                videoThumbnail.addEventListener('click', () => {
+                    const videoSrc = videoThumbnail.getAttribute('data-video');
+                    if (videoSrc && historiasModalVideo) {
+                        const source = historiasModalVideo.querySelector('source');
+                        if (source) {
+                            source.src = videoSrc;
+                            historiasModalVideo.load();
+                            historiasVideoModal.classList.add('active');
+                            historiasModalVideo.play().catch(err => console.log('Erro ao reproduzir vídeo:', err));
+                        }
+                    }
+                });
+            }
+        }
+    });
+}
+
+// Inicializar carrossel
+if (historiasCarouselTrack && historiasSlides.length > 0) {
+    updateHistoriasCarousel();
+    setupVideoHover();
+}
+
+// Fechar modal
+if (historiasModalClose) {
+    historiasModalClose.addEventListener('click', () => {
+        if (historiasModalVideo) {
+            historiasModalVideo.pause();
+            const source = historiasModalVideo.querySelector('source');
+            if (source) {
+                source.src = '';
+            }
+            historiasModalVideo.load();
+        }
+        historiasVideoModal.classList.remove('active');
+    });
+}
+
+// Fechar modal ao clicar no overlay
+if (historiasVideoModal) {
+    const modalOverlay = historiasVideoModal.querySelector('.historias-video-modal-overlay');
+    if (modalOverlay) {
+        modalOverlay.addEventListener('click', () => {
+            if (historiasModalVideo) {
+                historiasModalVideo.pause();
+                const source = historiasModalVideo.querySelector('source');
+                if (source) {
+                    source.src = '';
+                }
+                historiasModalVideo.load();
+            }
+            historiasVideoModal.classList.remove('active');
+        });
+    }
+    
+    // Fechar modal com ESC
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && historiasVideoModal.classList.contains('active')) {
+            if (historiasModalVideo) {
+                historiasModalVideo.pause();
+                const source = historiasModalVideo.querySelector('source');
+                if (source) {
+                    source.src = '';
+                }
+                historiasModalVideo.load();
+            }
+            historiasVideoModal.classList.remove('active');
+        }
+    });
+}
+
+// Atualizar carrossel ao redimensionar
+window.addEventListener('resize', debounce(() => {
+    if (historiasCarouselTrack) {
+        updateHistoriasCarousel();
+    }
+}, 250));
+
 // ===== CONSOLE MESSAGE =====
 console.log('%c🏥 Yuna - Landing Page para Médicos', 'color: #2563eb; font-size: 20px; font-weight: bold;');
 console.log('%cDesenvolvido com ❤️', 'color: #10b981; font-size: 14px;');

@@ -165,34 +165,37 @@ body {
     min-height: 100vh;
     display: flex;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: center;
     position: relative;
     background-image: url('public/2149227832.jpg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    padding-top: 80px;
+    margin-top: 80px;
+    padding-top: 20px;
     padding-bottom: 120px;
 }
 
 .hero-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(to right, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.3) 40%, transparent 70%);
-    z-index: 0;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.5) 50%, rgba(0, 0, 0, 0.6) 100%) !important;
+    z-index: 0 !important;
+    pointer-events: none;
+    opacity: 1 !important;
 }
 
 .hero-content {
     position: relative;
     z-index: 1;
-    text-align: left;
+    text-align: center;
     color: #ffffff;
-    max-width: 580px;
+    max-width: 800px;
     padding: 3rem 0;
-    margin-left: 4rem;
+    margin-left: auto;
     margin-right: auto;
     background: none;
     backdrop-filter: none;
@@ -260,7 +263,7 @@ body {
     display: flex;
     flex-direction: row;
     gap: var(--spacing-sm);
-    justify-content: flex-start;
+    justify-content: center;
     margin-top: var(--spacing-md);
     flex-wrap: wrap;
 }
@@ -538,6 +541,92 @@ section {
 .about-image img:hover {
     transform: scale(1.02);
     box-shadow: var(--shadow-xl);
+}
+
+/* ===== EQUIPE SECTION ===== */
+.equipe-section {
+    background: #ffffff;
+    padding: var(--spacing-xl) 0;
+}
+
+.equipe-content {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.equipe-intro {
+    font-size: 1.1rem;
+    color: var(--text-light);
+    margin-bottom: var(--spacing-md);
+    text-align: center;
+    line-height: 1.8;
+}
+
+.equipe-conclusion {
+    font-size: 1.1rem;
+    color: var(--text-light);
+    margin-top: var(--spacing-md);
+    text-align: center;
+    line-height: 1.8;
+}
+
+.team-composition {
+    margin: var(--spacing-md) 0;
+    padding: var(--spacing-md);
+    background: rgba(0, 40, 85, 0.05);
+    border-radius: 12px;
+    border: 1px solid rgba(0, 40, 85, 0.1);
+}
+
+.team-composition h3 {
+    color: var(--text-dark);
+    margin-bottom: var(--spacing-sm);
+    font-size: 1.3rem;
+    font-weight: 600;
+}
+
+.team-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-sm);
+}
+
+@media (min-width: 769px) {
+    .team-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+.team-category h3 {
+    color: var(--primary-color);
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 0.5rem;
+}
+
+.team-category ul {
+    list-style: none;
+    padding: 0;
+}
+
+.team-category li {
+    padding: 0.5rem 0;
+    color: var(--text-light);
+    font-size: 1rem;
+    position: relative;
+    padding-left: 1.5rem;
+}
+
+.team-category li::before {
+    content: '•';
+    color: var(--primary-color);
+    position: absolute;
+    left: 0;
+    font-weight: bold;
+    font-size: 1.2rem;
 }
 
 /* Missão, Visão e Valores */
@@ -1025,6 +1114,9 @@ section {
     width: 100%;
     height: 100%;
     overflow: hidden;
+    max-width: 90%;
+    margin: 0 auto;
+    border-radius: 16px;
 }
 
 .estrutura-main-image img {
@@ -1032,6 +1124,7 @@ section {
     height: 100%;
     object-fit: cover;
     display: block;
+    border-radius: 16px;
 }
 
 /* Conteúdo - Direita */
@@ -1046,7 +1139,7 @@ section {
 }
 
 .estrutura-intro {
-    font-size: 1rem;
+    font-size: 1.125rem;
     color: var(--text-light);
     line-height: 1.6;
     margin-bottom: 1.5rem;
@@ -1192,6 +1285,416 @@ section {
     background: #ffffff;
     padding-top: var(--spacing-md);
     padding-bottom: var(--spacing-md);
+}
+
+/* ===== CARROSSEL DE HISTÓRIAS ===== */
+.historias-carousel-container {
+    position: relative;
+    max-width: 1400px;
+    margin: 3rem auto;
+    padding: 0 3rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.historias-carousel-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.historias-carousel {
+    flex: 1;
+    overflow: hidden;
+    min-width: 0;
+    max-width: 100%;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.historias-carousel-track {
+    display: flex;
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.historias-slide {
+    min-width: 100%;
+    max-width: 100%;
+    flex-shrink: 0;
+    padding: 0;
+    box-sizing: border-box;
+    overflow: visible;
+}
+
+.historias-main-content {
+    display: grid;
+    grid-template-columns: 400px 1fr;
+    gap: 3rem;
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(0, 40, 85, 0.1);
+    box-sizing: border-box;
+    overflow: visible;
+    width: 100%;
+    max-width: 100%;
+    position: relative;
+}
+
+.historias-main-content::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 6px;
+    background: linear-gradient(to bottom, var(--accent-color), var(--secondary-color));
+    border-radius: 16px 0 0 16px;
+    z-index: 1;
+}
+
+/* Vídeo Container */
+.historias-video-container {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #000;
+    height: 350px;
+    max-width: 400px;
+}
+
+.historias-video-thumbnail {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.historias-video-thumbnail video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.historias-video-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(0deg, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.4) 50%, transparent 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 2rem;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.historias-video-thumbnail:hover .historias-video-overlay {
+    opacity: 0.9;
+}
+
+.historias-play-icon {
+    width: 70px;
+    height: 70px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary-color);
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.historias-video-thumbnail:hover .historias-play-icon {
+    transform: scale(1.1);
+    background: white;
+}
+
+.historias-video-text {
+    text-align: center;
+    color: white;
+    width: 100%;
+}
+
+.historias-video-subtitle {
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+.historias-video-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    line-height: 1.3;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+}
+
+.historias-text-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding: 1.5rem;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow: visible;
+}
+
+.historias-depoimento-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.historias-aspas-icon {
+    font-size: 3.5rem;
+    line-height: 1;
+    color: var(--secondary-color);
+    font-family: Georgia, serif;
+    font-weight: bold;
+    flex-shrink: 0;
+    margin-top: -0.5rem;
+}
+
+.historias-depoimento-autor {
+    flex: 1;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+.historias-paciente-nome {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 0.25rem;
+    line-height: 1.3;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.historias-problema {
+    font-size: 0.95rem;
+    color: var(--text-light);
+    font-weight: 400;
+    margin-bottom: 0;
+    line-height: 1.5;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.historias-texto {
+    font-size: 1.05rem;
+    line-height: 1.8;
+    color: var(--text-dark);
+    font-weight: 400;
+    font-style: italic;
+    margin-top: 1rem;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    hyphens: auto;
+    text-align: left;
+}
+
+.historias-carousel-btn {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    max-width: 40px;
+    border-radius: 50%;
+    background: var(--secondary-color);
+    border: none;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(255, 128, 145, 0.25);
+    box-sizing: border-box;
+    margin: 0;
+    position: relative;
+    z-index: 10;
+}
+
+.historias-carousel-btn:hover:not(:disabled) {
+    background: #FF6B7A;
+    color: white;
+    transform: scale(1.1);
+    box-shadow: 0 6px 25px rgba(255, 128, 145, 0.4);
+}
+
+.historias-carousel-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+/* Modal de Vídeo */
+.historias-video-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 10000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-md);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.historias-video-modal.active {
+    display: flex;
+    opacity: 1;
+}
+
+.historias-video-modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(5px);
+}
+
+.historias-video-modal-content {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 900px;
+    aspect-ratio: 9 / 16;
+    background: #000;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+}
+
+.historias-video-modal.active .historias-video-modal-content {
+    transform: scale(1);
+}
+
+.historias-video-modal-close {
+    position: absolute;
+    top: -45px;
+    right: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    z-index: 2;
+}
+
+.historias-video-modal-close:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+}
+
+.historias-video-modal-content video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+}
+
+@media (max-width: 1024px) {
+    .historias-main-content {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+    
+    .historias-video-container {
+        height: 400px;
+        max-width: 100%;
+    }
+    
+    .historias-carousel-container {
+        padding: 0 4rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .historias-carousel-container {
+        padding: 0 3rem;
+    }
+    
+    .historias-paciente-nome {
+        font-size: 1.5rem;
+    }
+    
+    .historias-texto {
+        font-size: 1rem;
+    }
+    
+    .historias-carousel-btn {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .historias-video-modal-content {
+        max-width: 95%;
+    }
+}
+
+@media (max-width: 480px) {
+    .historias-carousel-container {
+        padding: 0 2.5rem;
+    }
+    
+    .historias-slide-content {
+        padding: 1.5rem;
+    }
+    
+    .historias-video-title {
+        font-size: 0.95rem;
+    }
+    
+    .historias-play-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 1.5rem;
+    }
 }
 
 .section-subtitle {
@@ -1741,7 +2244,7 @@ section {
     }
     
     .hero-overlay {
-        background: linear-gradient(to bottom, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.4) 50%, rgba(0, 0, 0, 0.3) 100%);
+        background: linear-gradient(to bottom, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.5) 50%, rgba(0, 0, 0, 0.4) 100%);
     }
     
     .hero-cta {
