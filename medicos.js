@@ -371,38 +371,70 @@ if (historiasPrevBtn) {
     historiasPrevBtn.addEventListener('click', prevHistoriasSlide);
 }
 
-// Auto-play do vídeo ao passar o mouse (apenas no slide atual)
+// Abrir modal ao clicar no vídeo
+function openHistoriasVideoModal(videoSrc) {
+    if (historiasModalVideo && historiasVideoModal) {
+        const source = historiasModalVideo.querySelector('source');
+        if (source) {
+            source.src = videoSrc;
+        } else {
+            historiasModalVideo.src = videoSrc;
+        }
+        historiasModalVideo.load();
+        historiasVideoModal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        
+        // Reproduzir o vídeo após carregar (apenas uma vez)
+        const playVideoOnce = function() {
+            historiasModalVideo.play().catch(err => {
+                console.log('Erro ao reproduzir vídeo no modal:', err);
+            });
+            historiasModalVideo.removeEventListener('loadeddata', playVideoOnce);
+        };
+        historiasModalVideo.addEventListener('loadeddata', playVideoOnce);
+    }
+}
+
+// Configurar abertura do modal ao clicar no vídeo
 function setupVideoHover() {
+    // Reconfigurar event listeners
+    const historiasSlides = document.querySelectorAll('.historias-slide');
     historiasSlides.forEach(slide => {
         const videoThumbnail = slide.querySelector('.historias-video-thumbnail');
         if (videoThumbnail) {
             const video = videoThumbnail.querySelector('video');
             
             if (video) {
-                videoThumbnail.addEventListener('mouseenter', () => {
-                    // Só reproduzir se este slide estiver visível
-                    if (slide === historiasSlides[historiasCurrentSlide]) {
-                        video.play().catch(err => console.log('Erro ao reproduzir vídeo:', err));
+                // Abrir modal ao clicar no thumbnail ou vídeo
+                videoThumbnail.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // Obter a URL do vídeo
+                    let videoSrc = videoThumbnail.getAttribute('data-video');
+                    if (!videoSrc || videoSrc.startsWith('public/')) {
+                        const source = video.querySelector('source');
+                        videoSrc = source ? source.src : video.src;
                     }
+                    
+                    // Abrir modal com o vídeo
+                    openHistoriasVideoModal(videoSrc);
                 });
                 
-                videoThumbnail.addEventListener('mouseleave', () => {
-                    video.pause();
-                    video.currentTime = 0;
-                });
-                
-                // Abrir modal ao clicar no vídeo
-                videoThumbnail.addEventListener('click', () => {
-                    const videoSrc = videoThumbnail.getAttribute('data-video');
-                    if (videoSrc && historiasModalVideo) {
-                        const source = historiasModalVideo.querySelector('source');
-                        if (source) {
-                            source.src = videoSrc;
-                            historiasModalVideo.load();
-                            historiasVideoModal.classList.add('active');
-                            historiasModalVideo.play().catch(err => console.log('Erro ao reproduzir vídeo:', err));
-                        }
+                // Também permitir clicar diretamente no vídeo
+                video.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    
+                    // Obter a URL do vídeo
+                    let videoSrc = videoThumbnail.getAttribute('data-video');
+                    if (!videoSrc || videoSrc.startsWith('public/')) {
+                        const source = video.querySelector('source');
+                        videoSrc = source ? source.src : video.src;
                     }
+                    
+                    // Abrir modal com o vídeo
+                    openHistoriasVideoModal(videoSrc);
                 });
             }
         }
@@ -412,53 +444,46 @@ function setupVideoHover() {
 // Inicializar carrossel
 if (historiasCarouselTrack && historiasSlides.length > 0) {
     updateHistoriasCarousel();
-    setupVideoHover();
+    // Aguardar um pouco para garantir que os vídeos foram atualizados pelo Firebase
+    setTimeout(() => {
+        setupVideoHover();
+    }, 1500);
 }
 
 // Fechar modal
-if (historiasModalClose) {
-    historiasModalClose.addEventListener('click', () => {
-        if (historiasModalVideo) {
-            historiasModalVideo.pause();
-            const source = historiasModalVideo.querySelector('source');
-            if (source) {
-                source.src = '';
-            }
-            historiasModalVideo.load();
+function closeHistoriasVideoModal() {
+    if (historiasModalVideo) {
+        historiasModalVideo.pause();
+        historiasModalVideo.currentTime = 0;
+        const source = historiasModalVideo.querySelector('source');
+        if (source) {
+            source.src = '';
+        } else {
+            historiasModalVideo.src = '';
         }
+        historiasModalVideo.load();
+    }
+    if (historiasVideoModal) {
         historiasVideoModal.classList.remove('active');
-    });
+    }
+    document.body.style.overflow = '';
+}
+
+if (historiasModalClose) {
+    historiasModalClose.addEventListener('click', closeHistoriasVideoModal);
 }
 
 // Fechar modal ao clicar no overlay
 if (historiasVideoModal) {
     const modalOverlay = historiasVideoModal.querySelector('.historias-video-modal-overlay');
     if (modalOverlay) {
-        modalOverlay.addEventListener('click', () => {
-            if (historiasModalVideo) {
-                historiasModalVideo.pause();
-                const source = historiasModalVideo.querySelector('source');
-                if (source) {
-                    source.src = '';
-                }
-                historiasModalVideo.load();
-            }
-            historiasVideoModal.classList.remove('active');
-        });
+        modalOverlay.addEventListener('click', closeHistoriasVideoModal);
     }
     
     // Fechar modal com ESC
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && historiasVideoModal.classList.contains('active')) {
-            if (historiasModalVideo) {
-                historiasModalVideo.pause();
-                const source = historiasModalVideo.querySelector('source');
-                if (source) {
-                    source.src = '';
-                }
-                historiasModalVideo.load();
-            }
-            historiasVideoModal.classList.remove('active');
+            closeHistoriasVideoModal();
         }
     });
 }
@@ -469,6 +494,30 @@ window.addEventListener('resize', debounce(() => {
         updateHistoriasCarousel();
     }
 }, 250));
+
+// ===== INICIALIZAR VÍDEOS DO FIREBASE STORAGE =====
+// Aguardar o carregamento do DOM e do Firebase
+document.addEventListener('DOMContentLoaded', async () => {
+    // Aguardar um pouco para garantir que o Firebase está carregado
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // Inicializar vídeos do Firebase Storage
+    if (window.firebaseVideos && window.firebaseVideos.initializeVideos) {
+        try {
+            await window.firebaseVideos.initializeVideos();
+            // Reconfigurar event listeners após os vídeos serem atualizados
+            setTimeout(() => {
+                if (typeof setupVideoHover === 'function') {
+                    setupVideoHover();
+                }
+            }, 500);
+        } catch (error) {
+            console.error('Erro ao inicializar vídeos do Firebase:', error);
+        }
+    } else {
+        console.warn('Firebase Videos utility não está disponível');
+    }
+});
 
 // ===== CONSOLE MESSAGE =====
 console.log('%c🏥 Yuna - Landing Page para Médicos', 'color: #2563eb; font-size: 20px; font-weight: bold;');

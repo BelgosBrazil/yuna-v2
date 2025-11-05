@@ -135,21 +135,68 @@ videoThumbnails.forEach(thumbnail => {
     }
 });
 
-// Abrir modal ao clicar na miniatura
-videoThumbnails.forEach(thumbnail => {
-    thumbnail.addEventListener('click', () => {
-        const videoSrc = thumbnail.getAttribute('data-video');
-        if (videoSrc && modalVideo) {
+// Abrir modal ao clicar no vídeo
+function openVideoModal(videoSrc) {
+    if (modalVideo && videoModal) {
+        const source = modalVideo.querySelector('source');
+        if (source) {
+            source.src = videoSrc;
+        } else {
             modalVideo.src = videoSrc;
-            videoModal.classList.add('active');
-            document.body.style.overflow = 'hidden';
-            
-            // Reproduzir automaticamente quando o modal abrir
-            modalVideo.play().catch(err => {
-                console.log('Autoplay bloqueado:', err);
-            });
         }
+        modalVideo.load();
+        videoModal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        
+        // Reproduzir o vídeo após carregar (apenas uma vez)
+        const playVideoOnce = function() {
+            modalVideo.play().catch(err => {
+                console.log('Erro ao reproduzir vídeo no modal:', err);
+            });
+            modalVideo.removeEventListener('loadeddata', playVideoOnce);
+        };
+        modalVideo.addEventListener('loadeddata', playVideoOnce);
+    }
+}
+
+// Abrir modal ao clicar no vídeo
+videoThumbnails.forEach(thumbnail => {
+    thumbnail.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const video = thumbnail.querySelector('video');
+        if (!video) return;
+        
+        // Obter a URL do vídeo (pode ser do data-video ou do source)
+        let videoSrc = thumbnail.getAttribute('data-video');
+        if (!videoSrc || videoSrc.startsWith('public/')) {
+            const source = video.querySelector('source');
+            videoSrc = source ? source.src : video.src;
+        }
+        
+        // Abrir modal com o vídeo
+        openVideoModal(videoSrc);
     });
+    
+    // Abrir modal ao clicar diretamente no vídeo também
+    const video = thumbnail.querySelector('video');
+    if (video) {
+        video.addEventListener('click', (e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            
+            // Obter a URL do vídeo
+            let videoSrc = thumbnail.getAttribute('data-video');
+            if (!videoSrc || videoSrc.startsWith('public/')) {
+                const source = video.querySelector('source');
+                videoSrc = source ? source.src : video.src;
+            }
+            
+            // Abrir modal com o vídeo
+            openVideoModal(videoSrc);
+        });
+    }
 });
 
 // Fechar modal
@@ -157,9 +204,17 @@ function closeVideoModal() {
     if (modalVideo) {
         modalVideo.pause();
         modalVideo.currentTime = 0;
-        modalVideo.src = '';
+        const source = modalVideo.querySelector('source');
+        if (source) {
+            source.src = '';
+        } else {
+            modalVideo.src = '';
+        }
+        modalVideo.load();
     }
-    videoModal.classList.remove('active');
+    if (videoModal) {
+        videoModal.classList.remove('active');
+    }
     document.body.style.overflow = '';
 }
 
@@ -433,6 +488,24 @@ ctaButtons.forEach(btn => {
         const buttonText = btn.textContent.trim();
         trackEvent('CTA', 'click', buttonText);
     });
+});
+
+// ===== INICIALIZAR VÍDEOS DO FIREBASE STORAGE =====
+// Aguardar o carregamento do DOM e do Firebase
+document.addEventListener('DOMContentLoaded', async () => {
+    // Aguardar um pouco para garantir que o Firebase está carregado
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // Inicializar vídeos do Firebase Storage
+    if (window.firebaseVideos && window.firebaseVideos.initializeVideos) {
+        try {
+            await window.firebaseVideos.initializeVideos();
+        } catch (error) {
+            console.error('Erro ao inicializar vídeos do Firebase:', error);
+        }
+    } else {
+        console.warn('Firebase Videos utility não está disponível');
+    }
 });
 
 // ===== CONSOLE MESSAGE =====

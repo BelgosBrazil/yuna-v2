@@ -204,7 +204,7 @@
                         <div class="play-icon">▶</div>
                         <span class="video-title">Minha História - Valéria</span>
                     </div>
-                    <video muted>
+                    <video muted controls controlsList="nodownload" oncontextmenu="return false;" draggable="false">
                         <source src="public/videos/valeria_jul25_reels.mp4" type="video/mp4">
                     </video>
                 </div>
@@ -214,7 +214,7 @@
                         <div class="play-icon">▶</div>
                         <span class="video-title">Minha História - Parte 4</span>
                     </div>
-                    <video muted>
+                    <video muted controls controlsList="nodownload" oncontextmenu="return false;" draggable="false">
                         <source src="public/videos/4_minha_historia_fev25_reels.mp4" type="video/mp4">
                     </video>
                 </div>
@@ -224,28 +224,28 @@
                         <div class="play-icon">▶</div>
                         <span class="video-title">Minha História - Parte 5</span>
                     </div>
-                    <video muted>
+                    <video muted controls controlsList="nodownload" oncontextmenu="return false;" draggable="false">
                         <source src="public/videos/5_minha_historia_fev25_reels.mp4" type="video/mp4">
                     </video>
                 </div>
                 
-                <div class="video-thumbnail" data-video="public/videos/Case_Sr.Vânio_legendado.mp4">
+                <div class="video-thumbnail" data-video="public/videos/Srvanio.mp4">
                     <div class="video-thumbnail-overlay">
                         <div class="play-icon">▶</div>
                         <span class="video-title">Case Clínico - Sr. Vânio</span>
                     </div>
-                    <video muted>
-                        <source src="public/videos/Case_Sr.Vânio_legendado.mp4" type="video/mp4">
+                    <video muted controls controlsList="nodownload" oncontextmenu="return false;" draggable="false">
+                        <source src="public/videos/Srvanio.mp4" type="video/mp4">
                     </video>
                 </div>
                 
-                <div class="video-thumbnail" data-video="public/videos/case Dra. Célia - rev.01.mp4">
+                <div class="video-thumbnail" data-video="public/videos/celia.mp4">
                     <div class="video-thumbnail-overlay">
                         <div class="play-icon">▶</div>
                         <span class="video-title">Case Clínico - Dra. Célia</span>
                     </div>
-                    <video muted>
-                        <source src="public/videos/case Dra. Célia - rev.01.mp4" type="video/mp4">
+                    <video muted controls controlsList="nodownload" oncontextmenu="return false;" draggable="false">
+                        <source src="public/videos/celia.mp4" type="video/mp4">
                     </video>
                 </div>
             </div>
@@ -255,7 +255,7 @@
                 <div class="video-modal-overlay"></div>
                 <div class="video-modal-content">
                     <button class="video-modal-close" aria-label="Fechar">×</button>
-                    <video id="modalVideo" controls>
+                    <video id="modalVideo" controls controlsList="nodownload" oncontextmenu="return false;" draggable="false">
                         <source src="" type="video/mp4">
                         Seu navegador não suporta a tag de vídeo.
                     </video>
@@ -575,6 +575,18 @@
         </div>
     </footer>
 
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics-compat.js"></script>
+    
+    <!-- Firebase Configuration -->
+    <script src="firebase-config.js"></script>
+    
+    <!-- Firebase Videos Utility -->
+    <script src="firebase-videos.js"></script>
+    
+    <!-- Main Script -->
     <script src="pacientes.js"></script>
 </body>
 </html>
