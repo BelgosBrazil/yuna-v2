@@ -10,6 +10,7 @@ const videoMap = {
     // Nomes no HTML correspondem aos nomes no Firebase Storage
     'Srvanio.mp4': 'Srvanio.mp4',
     'celia.mp4': 'celia.mp4',
+    'banneryuna.mp4': 'banneryuna.mp4',
 };
 
 // Cache de URLs para evitar múltiplas requisições
@@ -234,6 +235,7 @@ async function initializeVideos() {
         { name: '5_minha_historia_fev25_reels.mp4', dataVideo: 'public/videos/5_minha_historia_fev25_reels.mp4' },
         { name: 'Srvanio.mp4', dataVideo: 'public/videos/Srvanio.mp4' },
         { name: 'celia.mp4', dataVideo: 'public/videos/celia.mp4' },
+        { name: 'banneryuna.mp4', dataVideo: 'public/videos/banneryuna.mp4' },
     ];
     
     console.log(`📹 Encontrados ${videoMappings.length} vídeos para atualizar`);
@@ -245,6 +247,9 @@ async function initializeVideos() {
             updateVideoSources(mapping.name, mapping.dataVideo)
         )
     );
+    
+    // Carregar vídeo institucional (sem data-video)
+    await loadInstitutionalVideo();
     
     // Verificar resultados
     const successCount = results.filter(r => r.status === 'fulfilled').length;
@@ -262,6 +267,45 @@ async function initializeVideos() {
     
     // Proteger todos os vídeos após inicialização
     protectAllVideos();
+}
+
+/**
+ * Carrega o vídeo institucional diretamente do Firebase Storage
+ */
+async function loadInstitutionalVideo() {
+    try {
+        console.log('🎥 Carregando vídeo institucional...');
+        
+        const videoElement = document.querySelector('#video-institucional video');
+        
+        if (!videoElement) {
+            console.warn('⚠️ Elemento de vídeo institucional não encontrado');
+            return;
+        }
+        
+        // Obter URL do Firebase
+        const firebaseUrl = await getVideoUrl('banneryuna.mp4');
+        
+        // Atualizar source
+        const sourceTag = videoElement.querySelector('source');
+        if (sourceTag) {
+            sourceTag.src = firebaseUrl;
+        } else {
+            videoElement.src = firebaseUrl;
+        }
+        
+        // Aplicar proteções
+        protectVideoFromDownload(videoElement);
+        videoElement.removeAttribute('download');
+        videoElement.setAttribute('controlsList', 'nodownload');
+        
+        // Recarregar vídeo
+        videoElement.load();
+        
+        console.log('✅ Vídeo institucional carregado do Firebase');
+    } catch (error) {
+        console.error('❌ Erro ao carregar vídeo institucional:', error);
+    }
 }
 
 /**
@@ -301,6 +345,7 @@ window.firebaseVideos = {
     getVideoUrls,
     updateVideoSources,
     initializeVideos,
+    loadInstitutionalVideo,
     protectVideoFromDownload,
     protectAllVideos
 };

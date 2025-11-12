@@ -572,24 +572,16 @@ section {
 
 .team-composition {
     margin: var(--spacing-md) 0;
-    padding: var(--spacing-md);
+    padding: var(--spacing-lg);
     background: rgba(0, 40, 85, 0.05);
     border-radius: 12px;
     border: 1px solid rgba(0, 40, 85, 0.1);
 }
 
-.team-composition h3 {
-    color: var(--text-dark);
-    margin-bottom: var(--spacing-sm);
-    font-size: 1.3rem;
-    font-weight: 600;
-}
-
 .team-grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: var(--spacing-md);
-    margin-top: var(--spacing-sm);
+    gap: var(--spacing-lg);
 }
 
 @media (min-width: 769px) {
@@ -598,21 +590,34 @@ section {
     }
 }
 
-.team-category h3 {
+.team-column h3 {
     color: var(--primary-color);
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     font-weight: 600;
-    margin-bottom: 0.75rem;
-    border-bottom: 2px solid var(--primary-color);
+    margin-bottom: var(--spacing-sm);
     padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--primary-color);
 }
 
-.team-category ul {
+.team-subgrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-md);
+}
+
+@media (max-width: 768px) {
+    .team-subgrid {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+}
+
+.team-column ul {
     list-style: none;
     padding: 0;
 }
 
-.team-category li {
+.team-column li {
     padding: 0.5rem 0;
     color: var(--text-light);
     font-size: 1rem;
@@ -620,7 +625,7 @@ section {
     padding-left: 1.5rem;
 }
 
-.team-category li::before {
+.team-column li::before {
     content: '•';
     color: var(--primary-color);
     position: absolute;
@@ -810,6 +815,81 @@ section {
     font-weight: 300;
 }
 
+/* ===== DEPOIMENTOS DE MÉDICOS SECTION ===== */
+.depoimentos-medicos-section {
+    background: #f8f9fa;
+    padding: var(--spacing-xl) 0;
+}
+
+.depoimentos-medicos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: var(--spacing-lg);
+    margin-top: var(--spacing-lg);
+}
+
+.depoimento-medico-card {
+    background: #ffffff;
+    border: 1px solid rgba(0, 40, 85, 0.08);
+    border-radius: 16px;
+    padding: 2rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.depoimento-medico-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    border-color: var(--accent-color);
+}
+
+.depoimento-medico-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.depoimento-medico-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+    line-height: 1;
+}
+
+.depoimento-medico-autor h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 0.5rem;
+    line-height: 1.3;
+}
+
+.depoimento-medico-autor p {
+    font-size: 0.9rem;
+    color: var(--text-light);
+    margin: 0;
+    line-height: 1.4;
+}
+
+.depoimento-medico-texto {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--text-dark);
+    font-style: italic;
+    margin: 0;
+}
+
+@media (max-width: 768px) {
+    .depoimentos-medicos-grid {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-md);
+    }
+    
+    .depoimento-medico-card {
+        padding: 1.5rem;
+    }
+}
+
 /* ===== VIDEO SECTION ===== */
 .video-section {
     background: #fafafa;
@@ -825,19 +905,27 @@ section {
 .video-placeholder {
     position: relative;
     padding-bottom: 56.25%;
-    background: var(--text-dark);
+    background: #000;
     border-radius: 12px;
     overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
     min-height: 400px;
-    cursor: pointer;
     transition: var(--transition);
 }
 
+.video-placeholder video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 12px;
+}
+
 .video-placeholder:hover {
-    transform: scale(1.02);
     box-shadow: var(--shadow-xl);
 }
 
@@ -1085,16 +1173,17 @@ section {
 .estrutura-section {
     background: #ffffff;
     padding-top: 80px;
-    padding-bottom: 120px;
+    padding-bottom: 80px;
 }
 
 .estrutura-section .section-header {
     margin-bottom: var(--spacing-lg);
+    padding: 0 var(--spacing-lg);
 }
 
 .estrutura-section .container-fluid {
     max-width: 100%;
-    padding: 0 var(--spacing-lg);
+    padding: 0;
 }
 
 @media (max-width: 768px) {
@@ -1106,7 +1195,11 @@ section {
 .estrutura-grid-modern {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    height: 420px;
+    gap: 1.5rem;
+    height: 480px;
+    margin-bottom: 3rem;
+    max-width: 100%;
+    padding: 0 calc(2rem + 48px + 2rem);
 }
 
 /* Foto Principal - Esquerda */
@@ -1114,9 +1207,12 @@ section {
     width: 100%;
     height: 100%;
     overflow: hidden;
-    max-width: 90%;
-    margin: 0 auto;
-    border-radius: 16px;
+    border-radius: 12px;
+    position: relative;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .estrutura-main-image img {
@@ -1124,18 +1220,20 @@ section {
     height: 100%;
     object-fit: cover;
     display: block;
-    border-radius: 16px;
+    border-radius: 12px;
 }
 
 /* Conteúdo - Direita */
 .estrutura-content-modern {
     background: #f8f9fa;
-    padding: 2rem var(--spacing-md);
+    padding: 2.5rem 2rem 2.5rem 3rem;
     display: flex;
     flex-direction: column;
     justify-content: center;
     height: 100%;
     overflow: hidden;
+    border-left: 4px solid var(--accent-color);
+    border-radius: 12px;
 }
 
 .estrutura-intro {
@@ -1210,9 +1308,10 @@ section {
     display: flex;
     align-items: center;
     gap: 2rem;
-    margin-top: 3rem;
-    padding: 0;
+    margin-top: 0;
+    padding: 0 2rem;
     position: relative;
+    width: 100%;
 }
 
 .carousel-track-wrapper {
@@ -1379,9 +1478,10 @@ section {
 .historias-video-thumbnail video {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
     display: block;
     cursor: pointer;
+    background: #000;
 }
 
 .historias-video-overlay {
@@ -2258,16 +2358,27 @@ section {
     .estrutura-grid-modern {
         grid-template-columns: 1fr;
         height: auto;
+        margin-bottom: 2rem;
+        padding: 0 var(--spacing-md);
     }
 
     .estrutura-main-image {
         height: 240px;
+        padding: 0;
+        border-radius: 12px;
+    }
+    
+    .estrutura-main-image img {
+        border-radius: 12px;
     }
 
     .estrutura-content-modern {
         padding: 2rem 1.5rem;
         height: auto;
         overflow: visible;
+        border-left: none;
+        border-top: 4px solid var(--accent-color);
+        border-radius: 12px;
     }
     
     .estrutura-section .section-header {
