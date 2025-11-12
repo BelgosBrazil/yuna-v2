@@ -337,10 +337,21 @@ function updateHistoriasCarousel() {
     // Pausar todos os vídeos e resetar
     historiasSlides.forEach((slide, index) => {
         const video = slide.querySelector('video');
+        const thumbnail = slide.querySelector('.historias-video-thumbnail');
+        const overlay = slide.querySelector('.historias-video-overlay');
+        
         if (video) {
             if (index !== historiasCurrentSlide) {
                 video.pause();
                 video.currentTime = 0;
+                
+                // Resetar overlay
+                if (overlay) {
+                    overlay.style.opacity = '1';
+                }
+                if (thumbnail) {
+                    thumbnail.classList.remove('playing');
+                }
             }
         }
     });
@@ -395,7 +406,7 @@ function openHistoriasVideoModal(videoSrc) {
     }
 }
 
-// Configurar abertura do modal ao clicar no vídeo
+// Configurar reprodução de vídeo inline
 function setupVideoHover() {
     // Reconfigurar event listeners
     const historiasSlides = document.querySelectorAll('.historias-slide');
@@ -403,38 +414,65 @@ function setupVideoHover() {
         const videoThumbnail = slide.querySelector('.historias-video-thumbnail');
         if (videoThumbnail) {
             const video = videoThumbnail.querySelector('video');
+            const overlay = videoThumbnail.querySelector('.historias-video-overlay');
             
             if (video) {
-                // Abrir modal ao clicar no thumbnail ou vídeo
+                // Reproduzir vídeo inline ao clicar no thumbnail/overlay
                 videoThumbnail.addEventListener('click', (e) => {
+                    // Se clicar nos controles do vídeo, não fazer nada
+                    if (e.target.tagName === 'VIDEO' || e.target.closest('video')) {
+                        return;
+                    }
+                    
                     e.preventDefault();
                     e.stopPropagation();
                     
-                    // Obter a URL do vídeo
-                    let videoSrc = videoThumbnail.getAttribute('data-video');
-                    if (!videoSrc || videoSrc.startsWith('public/')) {
-                        const source = video.querySelector('source');
-                        videoSrc = source ? source.src : video.src;
+                    // Reproduzir ou pausar o vídeo
+                    if (video.paused) {
+                        // Pausar todos os outros vídeos
+                        document.querySelectorAll('.historias-video-thumbnail video').forEach(v => {
+                            if (v !== video && !v.paused) {
+                                v.pause();
+                            }
+                        });
+                        
+                        video.play();
+                        if (overlay) {
+                            overlay.style.opacity = '0';
+                            videoThumbnail.classList.add('playing');
+                        }
+                    } else {
+                        video.pause();
+                        if (overlay) {
+                            overlay.style.opacity = '1';
+                            videoThumbnail.classList.remove('playing');
+                        }
                     }
-                    
-                    // Abrir modal com o vídeo
-                    openHistoriasVideoModal(videoSrc);
                 });
                 
-                // Também permitir clicar diretamente no vídeo
-                video.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    
-                    // Obter a URL do vídeo
-                    let videoSrc = videoThumbnail.getAttribute('data-video');
-                    if (!videoSrc || videoSrc.startsWith('public/')) {
-                        const source = video.querySelector('source');
-                        videoSrc = source ? source.src : video.src;
+                // Mostrar overlay quando o vídeo pausar
+                video.addEventListener('pause', () => {
+                    if (overlay && video.currentTime > 0) {
+                        overlay.style.opacity = '1';
+                        videoThumbnail.classList.remove('playing');
                     }
-                    
-                    // Abrir modal com o vídeo
-                    openHistoriasVideoModal(videoSrc);
+                });
+                
+                // Esconder overlay quando o vídeo iniciar
+                video.addEventListener('play', () => {
+                    if (overlay) {
+                        overlay.style.opacity = '0';
+                        videoThumbnail.classList.add('playing');
+                    }
+                });
+                
+                // Mostrar overlay quando o vídeo terminar
+                video.addEventListener('ended', () => {
+                    if (overlay) {
+                        overlay.style.opacity = '1';
+                        videoThumbnail.classList.remove('playing');
+                    }
+                    video.currentTime = 0;
                 });
             }
         }
