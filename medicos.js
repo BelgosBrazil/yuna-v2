@@ -8,6 +8,7 @@ if (mobileMenuToggle) {
     mobileMenuToggle.addEventListener('click', () => {
         navMenu.classList.toggle('active');
         mobileMenuToggle.classList.toggle('active');
+        document.body.classList.toggle('nav-open');
     });
 
     // Fechar menu ao clicar em um link
@@ -16,6 +17,7 @@ if (mobileMenuToggle) {
         link.addEventListener('click', () => {
             navMenu.classList.remove('active');
             mobileMenuToggle.classList.remove('active');
+            document.body.classList.remove('nav-open');
         });
     });
 }
