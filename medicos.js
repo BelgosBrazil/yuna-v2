@@ -306,6 +306,98 @@ ctaButtons.forEach(btn => {
     });
 });
 
+const openChatbotBtn = document.getElementById('open-chatbot');
+if (openChatbotBtn) {
+    openChatbotBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        const section = document.getElementById('chatbot-view');
+        if (section) {
+            section.style.display = 'block';
+            const headerOffset = 80;
+            const elementPosition = section.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+            window.scrollTo({
+                top: offsetPosition,
+                behavior: 'smooth'
+            });
+        }
+    });
+}
+
+const openCallFormBtn = document.getElementById('open-call-form');
+if (openCallFormBtn) {
+    openCallFormBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        const section = document.getElementById('call-form');
+        if (section) {
+            section.style.display = 'block';
+            const headerOffset = 80;
+            const elementPosition = section.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+            window.scrollTo({
+                top: offsetPosition,
+                behavior: 'smooth'
+            });
+        }
+    });
+}
+
+const callForm = document.getElementById('callRequestForm');
+if (callForm) {
+    callForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const nome = document.getElementById('nome')?.value?.trim() || '';
+        const email = document.getElementById('email')?.value?.trim() || '';
+        const telefone = document.getElementById('telefone')?.value?.trim() || '';
+        const mensagem = document.getElementById('mensagem')?.value?.trim() || '';
+        const statusEl = document.getElementById('callFormMessage');
+        const submitBtn = callForm.querySelector('button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Enviando...';
+        }
+        try {
+            const db = window.firebaseFirestore;
+            if (!db) {
+                throw new Error('Firestore indisponível');
+            }
+            const ts = firebase.firestore.FieldValue.serverTimestamp();
+            await db.collection('messages').add({ nome, email, telefone, mensagem, createdAt: ts });
+            const mailDoc = {
+                to: 'relacionamento@yuna.com.br',
+                cc: 'manuel.cid@yuna.com.br',
+                message: {
+                    subject: `Novo contato - LP Médicos: ${nome}`,
+                    html: `<p><strong>Nome:</strong> ${nome}</p><p><strong>Email:</strong> ${email}</p><p><strong>Telefone:</strong> ${telefone}</p><p><strong>Mensagem:</strong></p><p>${mensagem}</p>`
+                }
+            };
+            await db.collection('mail').add(mailDoc);
+            if (statusEl) {
+                statusEl.style.display = 'block';
+                statusEl.classList.remove('error');
+                statusEl.classList.add('success');
+                statusEl.textContent = 'Solicitação enviada com sucesso.';
+            }
+            callForm.reset();
+        } catch (err) {
+            if (statusEl) {
+                statusEl.style.display = 'block';
+                statusEl.classList.remove('success');
+                statusEl.classList.add('error');
+                statusEl.textContent = 'Erro ao enviar. Tente novamente.';
+            }
+            console.error(err);
+        } finally {
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Enviar';
+            }
+        }
+    });
+}
+
 // ===== CARROSSEL DE HISTÓRIAS =====
 const historiasCarouselTrack = document.querySelector('.historias-carousel-track');
 const historiasSlides = document.querySelectorAll('.historias-slide');

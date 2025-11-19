@@ -13,18 +13,20 @@ const firebaseConfig = {
 };
 
 // Inicializar Firebase
-let app, analytics, storage;
+let app, analytics, storage, firestore;
 
 // Verificar se Firebase está disponível (carregado via CDN)
 if (typeof firebase !== 'undefined') {
   app = firebase.initializeApp(firebaseConfig);
   analytics = firebase.analytics();
   storage = firebase.storage();
+  firestore = firebase.firestore();
   
   // Tornar storage acessível globalmente
   window.firebaseStorage = storage;
   window.firebaseApp = app;
   window.firebaseAnalytics = analytics;
+  window.firebaseFirestore = firestore;
   
   console.log('✅ Firebase inicializado com sucesso');
 } else {

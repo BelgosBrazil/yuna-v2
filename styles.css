@@ -841,10 +841,17 @@ section {
     color: white;
 }
 
+.chat-content {
+    text-align: center;
+    max-width: 800px;
+    padding-top: 20px;
+}
+
 .cta-content {
     text-align: center;
     max-width: 800px;
     margin: 0 auto;
+    margin-bottom: 20px;
 }
 
 .cta-content h2 {

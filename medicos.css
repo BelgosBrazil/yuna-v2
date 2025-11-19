@@ -1174,6 +1174,78 @@ section {
     border-color: var(--primary-dark);
 }
 
+.contact-form {
+    background: #ffffff;
+    border: 1px solid rgba(0, 40, 85, 0.1);
+    border-left: 4px solid var(--accent-color);
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: var(--shadow-lg);
+    max-width: 640px;
+    margin: 2rem auto 0;
+}
+
+.contact-form .form-row {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1rem;
+    text-align: left;
+}
+
+.contact-form label {
+    color: var(--primary-color);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+}
+
+.contact-form input,
+.contact-form textarea {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    border: 2px solid rgba(0, 40, 85, 0.12);
+    border-radius: 12px;
+    background: #ffffff;
+    color: var(--text-dark);
+    transition: var(--transition);
+    outline: none;
+}
+
+.contact-form input::placeholder,
+.contact-form textarea::placeholder {
+    color: var(--text-light);
+}
+
+.contact-form input:focus,
+.contact-form textarea:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 8px 24px rgba(0, 40, 85, 0.08);
+}
+
+.contact-form button {
+    margin-top: 0.25rem;
+}
+
+.form-message {
+    text-align: center;
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    font-weight: 500;
+    background: rgba(253, 208, 134, 0.15);
+    color: var(--text-dark);
+    border: 1px solid rgba(253, 208, 134, 0.45);
+}
+
+.form-message.success {
+    background: rgba(253, 208, 134, 0.2);
+    border-color: rgba(253, 208, 134, 0.6);
+}
+
+.form-message.error {
+    background: rgba(255, 128, 145, 0.15);
+    border-color: rgba(255, 128, 145, 0.4);
+}
+
 /* ===== ESTRUTURA SECTION MODERNA ===== */
 .estrutura-section {
     background: #ffffff;
