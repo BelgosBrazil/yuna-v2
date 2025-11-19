@@ -286,7 +286,17 @@ const debouncedResize = debounce(() => {
 window.addEventListener('scroll', debouncedScroll);
 window.addEventListener('resize', debouncedResize);
 
-// ===== ANALYTICS =====
+function logAnalyticsEvent(name, params) {
+    try {
+        if (window.firebaseAnalytics && typeof window.firebaseAnalytics.logEvent === 'function') {
+            window.firebaseAnalytics.logEvent(name, params || {});
+        }
+    } catch (e) {}
+    if (typeof gtag !== 'undefined') {
+        gtag('event', name, params || {});
+    }
+}
+
 function trackEvent(category, action, label) {
     if (typeof gtag !== 'undefined') {
         gtag('event', action, {
@@ -294,7 +304,7 @@ function trackEvent(category, action, label) {
             'event_label': label
         });
     }
-    console.log(`Event tracked: ${category} - ${action} - ${label}`);
+    logAnalyticsEvent(action, { event_category: category, event_label: label });
 }
 
 // Rastrear cliques em CTAs
@@ -312,16 +322,17 @@ if (openChatbotBtn) {
         e.preventDefault();
         e.stopImmediatePropagation();
         const section = document.getElementById('chatbot-view');
-        if (section) {
-            section.style.display = 'block';
-            const headerOffset = 80;
-            const elementPosition = section.getBoundingClientRect().top;
-            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-            window.scrollTo({
-                top: offsetPosition,
-                behavior: 'smooth'
-            });
-        }
+    if (section) {
+        section.style.display = 'block';
+        const headerOffset = 80;
+        const elementPosition = section.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+        window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+        });
+        logAnalyticsEvent('section_view', { section_id: 'chatbot-view' });
+    }
     });
 }
 
@@ -331,16 +342,17 @@ if (openCallFormBtn) {
         e.preventDefault();
         e.stopImmediatePropagation();
         const section = document.getElementById('call-form');
-        if (section) {
-            section.style.display = 'block';
-            const headerOffset = 80;
-            const elementPosition = section.getBoundingClientRect().top;
-            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-            window.scrollTo({
-                top: offsetPosition,
-                behavior: 'smooth'
-            });
-        }
+    if (section) {
+        section.style.display = 'block';
+        const headerOffset = 80;
+        const elementPosition = section.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+        window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+        });
+        logAnalyticsEvent('section_view', { section_id: 'call-form' });
+    }
     });
 }
 
@@ -365,12 +377,63 @@ if (callForm) {
             }
             const ts = firebase.firestore.FieldValue.serverTimestamp();
             await db.collection('messages').add({ nome, email, telefone, mensagem, createdAt: ts });
+            logAnalyticsEvent('call_form_submit', { message_length: mensagem.length, has_email: !!email, has_phone: !!telefone });
+            const subject = `Novo contato - LP Médicos: ${nome}`;
+            const htmlContent = `
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="color-scheme" content="light only">
+    <meta name="supported-color-schemes" content="light">
+    <title>${subject}</title>
+  </head>
+  <body style="margin:0; padding:0; background:#EDEBE8; font-family:Arial, sans-serif; color:#002855;">
+    <div style="max-width:600px; margin:0 auto; padding:24px;">
+      <div style="background:#002855; color:#ffffff; padding:20px; border-radius:12px 12px 0 0; text-align:center;">
+        <h1 style="margin:0; font-size:20px; line-height:1.3;">YUNA — Novo contato</h1>
+        <p style="margin:8px 0 0; font-size:14px; opacity:0.9;">LP Médicos</p>
+      </div>
+      <div style="background:#ffffff; border:1px solid rgba(0,40,85,0.12); border-left:4px solid #FDD086; border-right:4px solid #FF8091; padding:24px; border-radius:0 0 12px 12px;">
+        <p style="margin:0 0 16px; font-size:14px; color:#002855;">Recebemos um novo contato pela landing page de Médicos.</p>
+        <table style="width:100%; border-collapse:collapse;">
+          <tbody>
+            <tr>
+              <td style="padding:10px; width:140px; font-weight:bold; color:#002855; background:#f7f7f7; border:1px solid #eee;">Nome</td>
+              <td style="padding:10px; color:#333; border:1px solid #eee;">${nome}</td>
+            </tr>
+            <tr>
+              <td style="padding:10px; font-weight:bold; color:#002855; background:#f7f7f7; border:1px solid #eee;">Email</td>
+              <td style="padding:10px; color:#333; border:1px solid #eee;">${email}</td>
+            </tr>
+            <tr>
+              <td style="padding:10px; font-weight:bold; color:#002855; background:#f7f7f7; border:1px solid #eee;">Telefone</td>
+              <td style="padding:10px; color:#333; border:1px solid #eee;">${telefone}</td>
+            </tr>
+            <tr>
+              <td style="padding:10px; font-weight:bold; color:#002855; background:#f7f7f7; border:1px solid #eee;">Mensagem</td>
+              <td style="padding:10px; color:#333; border:1px solid #eee;">${mensagem.replace(/\n/g, '<br>')}</td>
+            </tr>
+          </tbody>
+        </table>
+        <div style="margin-top:20px; padding:12px; background:#fff8e6; border:1px solid #FDD086; border-radius:8px; color:#5b4a00;">
+          <strong style="display:block; margin-bottom:6px;">Resumo</strong>
+          <span style="font-size:13px;">${subject}</span>
+        </div>
+      </div>
+      <div style="text-align:center; font-size:12px; color:#64748b; margin-top:16px;">
+        <p style="margin:4px 0;">Yuna</p>
+        <p style="margin:4px 0;">Este é um email automático</p>
+      </div>
+    </div>
+  </body>
+</html>`;
             const mailDoc = {
                 to: 'relacionamento@yuna.com.br',
                 cc: 'manuel.cid@yuna.com.br',
                 message: {
-                    subject: `Novo contato - LP Médicos: ${nome}`,
-                    html: `<p><strong>Nome:</strong> ${nome}</p><p><strong>Email:</strong> ${email}</p><p><strong>Telefone:</strong> ${telefone}</p><p><strong>Mensagem:</strong></p><p>${mensagem}</p>`
+                    html: htmlContent,
+                    text: subject,
+                    subject: subject
                 }
             };
             await db.collection('mail').add(mailDoc);
@@ -382,6 +445,7 @@ if (callForm) {
             }
             callForm.reset();
         } catch (err) {
+            logAnalyticsEvent('call_form_error', { code: 'submit_failed' });
             if (statusEl) {
                 statusEl.style.display = 'block';
                 statusEl.classList.remove('success');
@@ -469,11 +533,11 @@ function prevHistoriasSlide() {
 
 // Event listeners para os botões do carrossel
 if (historiasNextBtn) {
-    historiasNextBtn.addEventListener('click', nextHistoriasSlide);
+    historiasNextBtn.addEventListener('click', () => { nextHistoriasSlide(); logAnalyticsEvent('carousel_nav', { component: 'historias', direction: 'next' }); });
 }
 
 if (historiasPrevBtn) {
-    historiasPrevBtn.addEventListener('click', prevHistoriasSlide);
+    historiasPrevBtn.addEventListener('click', () => { prevHistoriasSlide(); logAnalyticsEvent('carousel_nav', { component: 'historias', direction: 'prev' }); });
 }
 
 // Abrir modal ao clicar no vídeo
@@ -550,6 +614,7 @@ function setupVideoHover() {
                         overlay.style.opacity = '1';
                         videoThumbnail.classList.remove('playing');
                     }
+                    logAnalyticsEvent('video_pause', { video_src: video.currentSrc || videoThumbnail.getAttribute('data-video') || '' });
                 });
                 
                 // Esconder overlay quando o vídeo iniciar
@@ -558,6 +623,7 @@ function setupVideoHover() {
                         overlay.style.opacity = '0';
                         videoThumbnail.classList.add('playing');
                     }
+                    logAnalyticsEvent('video_play', { video_src: video.currentSrc || videoThumbnail.getAttribute('data-video') || '' });
                 });
                 
                 // Mostrar overlay quando o vídeo terminar
@@ -567,6 +633,7 @@ function setupVideoHover() {
                         videoThumbnail.classList.remove('playing');
                     }
                     video.currentTime = 0;
+                    logAnalyticsEvent('video_complete', { video_src: video.currentSrc || videoThumbnail.getAttribute('data-video') || '' });
                 });
             }
         }
@@ -649,6 +716,29 @@ document.addEventListener('DOMContentLoaded', async () => {
     } else {
         console.warn('Firebase Videos utility não está disponível');
     }
+    (function(){
+        var totalVisibleMs = 0;
+        var lastVisibleStart = document.hidden ? null : Date.now();
+        document.addEventListener('visibilitychange', function(){
+            if (document.hidden) {
+                if (lastVisibleStart) {
+                    totalVisibleMs += Date.now() - lastVisibleStart;
+                    lastVisibleStart = null;
+                }
+            } else {
+                lastVisibleStart = Date.now();
+            }
+        });
+        setInterval(function(){
+            var visibleNowMs = lastVisibleStart ? (Date.now() - lastVisibleStart) : 0;
+            var engagement = totalVisibleMs + visibleNowMs;
+            logAnalyticsEvent('engagement_heartbeat', { engagement_time_msec: engagement });
+        }, 15000);
+        window.addEventListener('pagehide', function(){
+            var finalMs = totalVisibleMs + (lastVisibleStart ? (Date.now() - lastVisibleStart) : 0);
+            logAnalyticsEvent('engagement_time', { engagement_time_msec: finalMs });
+        });
+    })();
 });
 
 // ===== CONSOLE MESSAGE =====
