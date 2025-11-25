@@ -43,7 +43,7 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
         e.preventDefault();
         const target = document.querySelector(this.getAttribute('href'));
-        
+
         if (target) {
             const headerOffset = 80;
             const elementPosition = target.getBoundingClientRect().top;
@@ -136,9 +136,9 @@ function updateCarousel() {
     const slideWidth = carouselImages[0].offsetWidth;
     const gap = 24; // 1.5rem = 24px
     const offset = currentSlide * (slideWidth + gap);
-    
+
     carouselTrack.style.transform = `translateX(-${offset}px)`;
-    
+
     // Atualizar estado dos botões
     prevBtn.disabled = currentSlide === 0;
     nextBtn.disabled = currentSlide >= getMaxSlides();
@@ -190,7 +190,7 @@ const estruturaSection = document.querySelector('.estrutura-section');
 if (estruturaSection && carouselTrack) {
     updateSlidesToShow();
     updateCarousel();
-    
+
     const estruturaObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
@@ -200,7 +200,7 @@ if (estruturaSection && carouselTrack) {
             }
         });
     }, { threshold: 0.3 });
-    
+
     estruturaObserver.observe(estruturaSection);
 }
 
@@ -291,7 +291,7 @@ function logAnalyticsEvent(name, params) {
         if (window.firebaseAnalytics && typeof window.firebaseAnalytics.logEvent === 'function') {
             window.firebaseAnalytics.logEvent(name, params || {});
         }
-    } catch (e) {}
+    } catch (e) { }
     if (typeof gtag !== 'undefined') {
         gtag('event', name, params || {});
     }
@@ -322,17 +322,17 @@ if (openChatbotBtn) {
         e.preventDefault();
         e.stopImmediatePropagation();
         const section = document.getElementById('chatbot-view');
-    if (section) {
-        section.style.display = 'block';
-        const headerOffset = 80;
-        const elementPosition = section.getBoundingClientRect().top;
-        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-        window.scrollTo({
-            top: offsetPosition,
-            behavior: 'smooth'
-        });
-        logAnalyticsEvent('section_view', { section_id: 'chatbot-view' });
-    }
+        if (section) {
+            section.style.display = 'block';
+            const headerOffset = 80;
+            const elementPosition = section.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+            window.scrollTo({
+                top: offsetPosition,
+                behavior: 'smooth'
+            });
+            logAnalyticsEvent('section_view', { section_id: 'chatbot-view' });
+        }
     });
 }
 
@@ -342,17 +342,17 @@ if (openCallFormBtn) {
         e.preventDefault();
         e.stopImmediatePropagation();
         const section = document.getElementById('call-form');
-    if (section) {
-        section.style.display = 'block';
-        const headerOffset = 80;
-        const elementPosition = section.getBoundingClientRect().top;
-        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-        window.scrollTo({
-            top: offsetPosition,
-            behavior: 'smooth'
-        });
-        logAnalyticsEvent('section_view', { section_id: 'call-form' });
-    }
+        if (section) {
+            section.style.display = 'block';
+            const headerOffset = 80;
+            const elementPosition = section.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+            window.scrollTo({
+                top: offsetPosition,
+                behavior: 'smooth'
+            });
+            logAnalyticsEvent('section_view', { section_id: 'call-form' });
+        }
     });
 }
 
@@ -428,15 +428,17 @@ if (callForm) {
   </body>
 </html>`;
             const mailDoc = {
-                to: 'relacionamento@yuna.com.br',
-                cc: 'manuel.cid@yuna.com.br',
+                to: ['relacionamento@yuna.com.br', 'manuel.cid@yuna.com.br'],
                 message: {
                     html: htmlContent,
                     text: subject,
                     subject: subject
                 }
             };
-            await db.collection('mail').add(mailDoc);
+            console.log('📧 Criando documento de email na coleção "mail":', mailDoc);
+            const docRef = await db.collection('mail').add(mailDoc);
+            console.log('✅ Documento de email criado com ID:', docRef.id);
+            console.log('📍 Path completo:', docRef.path);
             if (statusEl) {
                 statusEl.style.display = 'block';
                 statusEl.classList.remove('error');
@@ -476,33 +478,33 @@ let historiasCurrentSlide = 0;
 // Atualizar posição do carrossel
 function updateHistoriasCarousel() {
     if (historiasSlides.length === 0) return;
-    
+
     const slideWidth = historiasSlides[0].offsetWidth;
     const offset = -historiasCurrentSlide * slideWidth;
     historiasCarouselTrack.style.transform = `translateX(${offset}px)`;
-    
+
     // Atualizar estado dos botões
     if (historiasPrevBtn) {
         historiasPrevBtn.disabled = historiasCurrentSlide === 0;
         historiasPrevBtn.style.opacity = historiasCurrentSlide === 0 ? '0.5' : '1';
     }
-    
+
     if (historiasNextBtn) {
         historiasNextBtn.disabled = historiasCurrentSlide >= historiasSlides.length - 1;
         historiasNextBtn.style.opacity = historiasCurrentSlide >= historiasSlides.length - 1 ? '0.5' : '1';
     }
-    
+
     // Pausar todos os vídeos e resetar
     historiasSlides.forEach((slide, index) => {
         const video = slide.querySelector('video');
         const thumbnail = slide.querySelector('.historias-video-thumbnail');
         const overlay = slide.querySelector('.historias-video-overlay');
-        
+
         if (video) {
             if (index !== historiasCurrentSlide) {
                 video.pause();
                 video.currentTime = 0;
-                
+
                 // Resetar overlay
                 if (overlay) {
                     overlay.style.opacity = '1';
@@ -552,9 +554,9 @@ function openHistoriasVideoModal(videoSrc) {
         historiasModalVideo.load();
         historiasVideoModal.classList.add('active');
         document.body.style.overflow = 'hidden';
-        
+
         // Reproduzir o vídeo após carregar (apenas uma vez)
-        const playVideoOnce = function() {
+        const playVideoOnce = function () {
             historiasModalVideo.play().catch(err => {
                 console.log('Erro ao reproduzir vídeo no modal:', err);
             });
@@ -573,7 +575,7 @@ function setupVideoHover() {
         if (videoThumbnail) {
             const video = videoThumbnail.querySelector('video');
             const overlay = videoThumbnail.querySelector('.historias-video-overlay');
-            
+
             if (video) {
                 // Reproduzir vídeo inline ao clicar no thumbnail/overlay
                 videoThumbnail.addEventListener('click', (e) => {
@@ -581,10 +583,10 @@ function setupVideoHover() {
                     if (e.target.tagName === 'VIDEO' || e.target.closest('video')) {
                         return;
                     }
-                    
+
                     e.preventDefault();
                     e.stopPropagation();
-                    
+
                     // Reproduzir ou pausar o vídeo
                     if (video.paused) {
                         // Pausar todos os outros vídeos
@@ -593,7 +595,7 @@ function setupVideoHover() {
                                 v.pause();
                             }
                         });
-                        
+
                         video.play();
                         if (overlay) {
                             overlay.style.opacity = '0';
@@ -607,7 +609,7 @@ function setupVideoHover() {
                         }
                     }
                 });
-                
+
                 // Mostrar overlay quando o vídeo pausar
                 video.addEventListener('pause', () => {
                     if (overlay && video.currentTime > 0) {
@@ -616,7 +618,7 @@ function setupVideoHover() {
                     }
                     logAnalyticsEvent('video_pause', { video_src: video.currentSrc || videoThumbnail.getAttribute('data-video') || '' });
                 });
-                
+
                 // Esconder overlay quando o vídeo iniciar
                 video.addEventListener('play', () => {
                     if (overlay) {
@@ -625,7 +627,7 @@ function setupVideoHover() {
                     }
                     logAnalyticsEvent('video_play', { video_src: video.currentSrc || videoThumbnail.getAttribute('data-video') || '' });
                 });
-                
+
                 // Mostrar overlay quando o vídeo terminar
                 video.addEventListener('ended', () => {
                     if (overlay) {
@@ -678,7 +680,7 @@ if (historiasVideoModal) {
     if (modalOverlay) {
         modalOverlay.addEventListener('click', closeHistoriasVideoModal);
     }
-    
+
     // Fechar modal com ESC
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && historiasVideoModal.classList.contains('active')) {
@@ -699,7 +701,7 @@ window.addEventListener('resize', debounce(() => {
 document.addEventListener('DOMContentLoaded', async () => {
     // Aguardar um pouco para garantir que o Firebase está carregado
     await new Promise(resolve => setTimeout(resolve, 500));
-    
+
     // Inicializar vídeos do Firebase Storage
     if (window.firebaseVideos && window.firebaseVideos.initializeVideos) {
         try {
@@ -716,10 +718,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     } else {
         console.warn('Firebase Videos utility não está disponível');
     }
-    (function(){
+    (function () {
         var totalVisibleMs = 0;
         var lastVisibleStart = document.hidden ? null : Date.now();
-        document.addEventListener('visibilitychange', function(){
+        document.addEventListener('visibilitychange', function () {
             if (document.hidden) {
                 if (lastVisibleStart) {
                     totalVisibleMs += Date.now() - lastVisibleStart;
@@ -729,12 +731,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 lastVisibleStart = Date.now();
             }
         });
-        setInterval(function(){
+        setInterval(function () {
             var visibleNowMs = lastVisibleStart ? (Date.now() - lastVisibleStart) : 0;
             var engagement = totalVisibleMs + visibleNowMs;
             logAnalyticsEvent('engagement_heartbeat', { engagement_time_msec: engagement });
         }, 15000);
-        window.addEventListener('pagehide', function(){
+        window.addEventListener('pagehide', function () {
             var finalMs = totalVisibleMs + (lastVisibleStart ? (Date.now() - lastVisibleStart) : 0);
             logAnalyticsEvent('engagement_time', { engagement_time_msec: finalMs });
         });
