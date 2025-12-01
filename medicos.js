@@ -96,13 +96,69 @@ animateElements.forEach(el => {
     observer.observe(el);
 });
 
-// ===== VIDEO PLACEHOLDER =====
-const videoPlaceholder = document.querySelector('.video-placeholder');
+// ===== VIDEO INSTITUCIONAL AUTOPLAY =====
+let videoInstitucionalObserver = null;
 
-if (videoPlaceholder) {
-    videoPlaceholder.addEventListener('click', () => {
-        console.log('Vídeo clicado - adicione aqui o código para reproduzir o vídeo');
+function setupVideoInstitucionalAutoplay() {
+    const videoInstitucional = document.querySelector('#video-institucional video');
+    const videoSection = document.querySelector('.video-section');
+
+    if (!videoInstitucional || !videoSection) {
+        return;
+    }
+
+    // Se já existe um observer, desconectar o anterior
+    if (videoInstitucionalObserver) {
+        videoInstitucionalObserver.disconnect();
+    }
+
+    // Garantir que o vídeo tenha os atributos necessários para autoplay
+    videoInstitucional.muted = true;
+    videoInstitucional.playsInline = true;
+    if (!videoInstitucional.hasAttribute('loop')) {
+        videoInstitucional.setAttribute('loop', '');
+    }
+
+    // Intersection Observer para iniciar/pausar vídeo quando a seção estiver visível
+    videoInstitucionalObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                // Quando a seção entra na viewport, tentar reproduzir
+                const playPromise = videoInstitucional.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(error => {
+                        console.log('Erro ao reproduzir vídeo automaticamente:', error);
+                        // Se falhar, o usuário pode clicar para reproduzir
+                    });
+                }
+                logAnalyticsEvent('video_institucional_view', {});
+            } else {
+                // Quando a seção sai da viewport, pausar o vídeo
+                videoInstitucional.pause();
+            }
+        });
+    }, {
+        threshold: 0.3 // Inicia quando 30% da seção estiver visível
     });
+
+    // Observar a seção do vídeo
+    videoInstitucionalObserver.observe(videoSection);
+
+    // Permitir que o usuário controle o vídeo manualmente
+    videoInstitucional.addEventListener('play', () => {
+        logAnalyticsEvent('video_institucional_play', {});
+    });
+
+    videoInstitucional.addEventListener('pause', () => {
+        logAnalyticsEvent('video_institucional_pause', {});
+    });
+}
+
+// Inicializar quando o DOM estiver pronto
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupVideoInstitucionalAutoplay);
+} else {
+    setupVideoInstitucionalAutoplay();
 }
 
 // ===== CARROSSEL MODERNO DE IMAGENS =====
@@ -566,7 +622,7 @@ function openHistoriasVideoModal(videoSrc) {
     }
 }
 
-// Configurar reprodução de vídeo inline
+// Configurar abertura de modal ao clicar no play
 function setupVideoHover() {
     // Reconfigurar event listeners
     const historiasSlides = document.querySelectorAll('.historias-slide');
@@ -575,10 +631,21 @@ function setupVideoHover() {
         if (videoThumbnail) {
             const video = videoThumbnail.querySelector('video');
             const overlay = videoThumbnail.querySelector('.historias-video-overlay');
+            const playIcon = videoThumbnail.querySelector('.historias-play-icon');
 
             if (video) {
-                // Reproduzir vídeo inline ao clicar no thumbnail/overlay
-                videoThumbnail.addEventListener('click', (e) => {
+                // Obter o src do vídeo (do atributo data-video ou do source)
+                const getVideoSrc = () => {
+                    const dataVideo = videoThumbnail.getAttribute('data-video');
+                    if (dataVideo) return dataVideo;
+                    const source = video.querySelector('source');
+                    if (source && source.src) return source.src;
+                    if (video.src) return video.src;
+                    return '';
+                };
+
+                // Abrir modal ao clicar no overlay ou no ícone de play
+                const openModalOnClick = (e) => {
                     // Se clicar nos controles do vídeo, não fazer nada
                     if (e.target.tagName === 'VIDEO' || e.target.closest('video')) {
                         return;
@@ -587,55 +654,36 @@ function setupVideoHover() {
                     e.preventDefault();
                     e.stopPropagation();
 
-                    // Reproduzir ou pausar o vídeo
-                    if (video.paused) {
-                        // Pausar todos os outros vídeos
-                        document.querySelectorAll('.historias-video-thumbnail video').forEach(v => {
-                            if (v !== video && !v.paused) {
-                                v.pause();
-                            }
-                        });
-
-                        video.play();
-                        if (overlay) {
-                            overlay.style.opacity = '0';
-                            videoThumbnail.classList.add('playing');
-                        }
-                    } else {
-                        video.pause();
-                        if (overlay) {
-                            overlay.style.opacity = '1';
-                            videoThumbnail.classList.remove('playing');
-                        }
+                    const videoSrc = getVideoSrc();
+                    if (videoSrc) {
+                        openHistoriasVideoModal(videoSrc);
+                        logAnalyticsEvent('video_modal_open', { video_src: videoSrc });
                     }
-                });
+                };
 
-                // Mostrar overlay quando o vídeo pausar
-                video.addEventListener('pause', () => {
-                    if (overlay && video.currentTime > 0) {
-                        overlay.style.opacity = '1';
-                        videoThumbnail.classList.remove('playing');
-                    }
-                    logAnalyticsEvent('video_pause', { video_src: video.currentSrc || videoThumbnail.getAttribute('data-video') || '' });
-                });
+                // Adicionar evento de clique no overlay
+                if (overlay) {
+                    overlay.addEventListener('click', openModalOnClick);
+                    overlay.style.cursor = 'pointer';
+                }
 
-                // Esconder overlay quando o vídeo iniciar
-                video.addEventListener('play', () => {
-                    if (overlay) {
-                        overlay.style.opacity = '0';
-                        videoThumbnail.classList.add('playing');
-                    }
-                    logAnalyticsEvent('video_play', { video_src: video.currentSrc || videoThumbnail.getAttribute('data-video') || '' });
-                });
+                // Adicionar evento de clique no ícone de play
+                if (playIcon) {
+                    playIcon.addEventListener('click', openModalOnClick);
+                    playIcon.style.cursor = 'pointer';
+                }
 
-                // Mostrar overlay quando o vídeo terminar
-                video.addEventListener('ended', () => {
-                    if (overlay) {
-                        overlay.style.opacity = '1';
-                        videoThumbnail.classList.remove('playing');
+                // Adicionar evento de clique no thumbnail (mas não no vídeo)
+                videoThumbnail.addEventListener('click', (e) => {
+                    // Se clicar no vídeo ou seus controles, não fazer nada
+                    if (e.target.tagName === 'VIDEO' || e.target.closest('video')) {
+                        return;
                     }
-                    video.currentTime = 0;
-                    logAnalyticsEvent('video_complete', { video_src: video.currentSrc || videoThumbnail.getAttribute('data-video') || '' });
+                    // Se clicar no overlay ou play icon, já foi tratado acima
+                    if (e.target.closest('.historias-video-overlay') || e.target.closest('.historias-play-icon')) {
+                        return;
+                    }
+                    openModalOnClick(e);
                 });
             }
         }
@@ -710,6 +758,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             setTimeout(() => {
                 if (typeof setupVideoHover === 'function') {
                     setupVideoHover();
+                }
+                // Reinicializar autoplay do vídeo institucional após Firebase carregar
+                if (typeof setupVideoInstitucionalAutoplay === 'function') {
+                    setupVideoInstitucionalAutoplay();
                 }
             }, 500);
         } catch (error) {
