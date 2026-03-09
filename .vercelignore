@@ -29,3 +29,6 @@ Thumbs.db
 *~
 *.bak
 *.tmp
+
+# Vídeos (excedem limite de 100MB do Vercel Hobby - hospedar em Vimeo/R2)
+public/*.mp4

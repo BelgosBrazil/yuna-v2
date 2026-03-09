@@ -1,19 +1,19 @@
 // ===== FIREBASE VIDEOS UTILITY =====
-// Gerenciamento de vídeos - usa arquivos locais em public/ (Firebase Storage desativado)
+// Gerenciamento de vídeos - prioridade: URLs externas > local > Firebase
 
-// Usar sempre vídeos locais (evita CORS/erros do Firebase Storage)
-const USE_LOCAL_VIDEOS = true;
+// Usar URLs externas (Vimeo, R2, etc) - necessário pois Vercel Hobby limita deploy a 100MB
+// Defina em video-urls.js após fazer upload dos vídeos
 
-// Mapeamento dos vídeos locais para os caminhos no Firebase Storage (quando USE_LOCAL_VIDEOS = false)
+// Caminhos no Firebase Storage - pasta Yuna (belgoscrm)
 const videoMap = {
-    'valeria_jul25_reels.mp4': 'videos/valeria_jul25_reels.mp4',
-    '4_minha_historia_fev25_reels.mp4': 'videos/4_minha_historia_fev25_reels.mp4',
-    '5_minha_historia_fev25_reels.mp4': 'videos/5_minha_historia_fev25_reels.mp4',
-    'Case_Sr.Vânio_legendado.mp4': 'videos/Case_Sr.Vânio_legendado.mp4',
-    'case Dra. Célia - rev.01.mp4': 'videos/case Dra. Célia - rev.01.mp4',
-    'Srvanio.mp4': 'videos/Srvanio.mp4',
-    'celia.mp4': 'videos/celia.mp4',
-    'banneryuna.mp4': 'videos/banneryuna.mp4',
+    'valeria_jul25_reels.mp4': 'Yuna/valeria_jul25_reels.mp4',
+    '4_minha_historia_fev25_reels.mp4': 'Yuna/4_minha_historia_fev25_reels.mp4',
+    '5_minha_historia_fev25_reels.mp4': 'Yuna/5_minha_historia_fev25_reels.mp4',
+    'Case_Sr.Vânio_legendado.mp4': 'Yuna/Case_Sr.Vânio_legendado.mp4',
+    'case Dra. Célia - rev.01.mp4': 'Yuna/case Dra. Célia - rev.01.mp4',
+    'Srvanio.mp4': 'Yuna/Srvanio.mp4',
+    'celia.mp4': 'Yuna/celia.mp4',
+    'banneryuna.mp4': 'Yuna/banneryuna.mp4',
 };
 
 // Cache de URLs para evitar múltiplas requisições
@@ -25,14 +25,14 @@ const videoUrlCache = {};
  * @returns {Promise<string>} - URL de download do vídeo
  */
 async function getVideoUrl(videoName) {
-    if (USE_LOCAL_VIDEOS) {
-        return getLocalVideoUrl(videoName);
-    }
+    // 1. Verificar URLs externas (Vimeo, Cloudflare R2, etc.) - prioridade máxima
+    const ext = window.EXTERNAL_VIDEO_URLS || (typeof EXTERNAL_VIDEO_URLS !== 'undefined' ? EXTERNAL_VIDEO_URLS : {});
+    if (ext[videoName]) return ext[videoName];
     if (videoUrlCache[videoName]) {
         return videoUrlCache[videoName];
     }
     try {
-        const firebaseStorage = window.firebaseStorage || (typeof storage !== 'undefined' ? storage : null);
+        const firebaseStorage = window.firebaseVideoStorage || window.firebaseStorage || (typeof storage !== 'undefined' ? storage : null);
         if (!firebaseStorage) return getLocalVideoUrl(videoName);
         const storagePath = videoMap[videoName];
         if (!storagePath) return getLocalVideoUrl(videoName);
@@ -208,7 +208,7 @@ async function initializeVideos() {
     console.log('🔄 Iniciando inicialização dos vídeos do Firebase Storage...');
     
     // Aguardar um pouco para garantir que o Firebase está carregado
-    let firebaseStorage = window.firebaseStorage || storage;
+    let firebaseStorage = window.firebaseVideoStorage || window.firebaseStorage || storage;
     
     if (!firebaseStorage) {
         console.warn('⏳ Aguardando Firebase Storage...');
