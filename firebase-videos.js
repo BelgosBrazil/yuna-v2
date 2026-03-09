@@ -48,12 +48,15 @@ async function getVideoUrl(videoName) {
 
 /**
  * Retorna URL absoluta do vídeo local (em produção, caminho desde a raiz do domínio)
+ * Usa encodeURIComponent para caracteres especiais (espaços, acentos)
  */
 function getLocalVideoUrl(videoName) {
-    const path = `/public/${videoName}`;
-    return typeof window !== 'undefined' && window.location?.origin
-        ? `${window.location.origin}${path}`
-        : path;
+    const encodedName = encodeURIComponent(videoName);
+    const path = `/public/${encodedName}`;
+    if (typeof window !== 'undefined' && window.location?.origin) {
+        return `${window.location.origin}${path}`;
+    }
+    return path;
 }
 
 /**
@@ -222,17 +225,16 @@ async function initializeVideos() {
     
     console.log('✅ Firebase Storage disponível');
 
-    // Mapeamentos para medicos.html e ortopedica.html (public/xxx.mp4)
-    // e pacientes.html (public/videos/xxx.mp4)
+    // Mapeamentos: /public/ (caminho absoluto) e public/videos/ (legado)
     const videoMappings = [
+        { name: 'valeria_jul25_reels.mp4', dataVideo: '/public/valeria_jul25_reels.mp4' },
+        { name: '4_minha_historia_fev25_reels.mp4', dataVideo: '/public/4_minha_historia_fev25_reels.mp4' },
+        { name: '5_minha_historia_fev25_reels.mp4', dataVideo: '/public/5_minha_historia_fev25_reels.mp4' },
+        { name: 'Case_Sr.Vânio_legendado.mp4', dataVideo: '/public/Case_Sr.Vânio_legendado.mp4' },
+        { name: 'case Dra. Célia - rev.01.mp4', dataVideo: '/public/case Dra. Célia - rev.01.mp4' },
         { name: 'valeria_jul25_reels.mp4', dataVideo: 'public/valeria_jul25_reels.mp4' },
         { name: '4_minha_historia_fev25_reels.mp4', dataVideo: 'public/4_minha_historia_fev25_reels.mp4' },
         { name: '5_minha_historia_fev25_reels.mp4', dataVideo: 'public/5_minha_historia_fev25_reels.mp4' },
-        { name: 'Case_Sr.Vânio_legendado.mp4', dataVideo: 'public/Case_Sr.Vânio_legendado.mp4' },
-        { name: 'case Dra. Célia - rev.01.mp4', dataVideo: 'public/case Dra. Célia - rev.01.mp4' },
-        { name: 'valeria_jul25_reels.mp4', dataVideo: 'public/videos/valeria_jul25_reels.mp4' },
-        { name: '4_minha_historia_fev25_reels.mp4', dataVideo: 'public/videos/4_minha_historia_fev25_reels.mp4' },
-        { name: '5_minha_historia_fev25_reels.mp4', dataVideo: 'public/videos/5_minha_historia_fev25_reels.mp4' },
         { name: 'Srvanio.mp4', dataVideo: 'public/videos/Srvanio.mp4' },
         { name: 'celia.mp4', dataVideo: 'public/videos/celia.mp4' },
         { name: 'banneryuna.mp4', dataVideo: 'public/videos/banneryuna.mp4' },
