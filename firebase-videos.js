@@ -34,7 +34,7 @@ async function getVideoUrl(videoName) {
         
         if (!firebaseStorage) {
             console.warn('Firebase Storage não está disponível');
-            return `public/videos/${videoName}`;
+            return `public/${videoName}`;
         }
 
         // Obter o caminho do Firebase Storage
@@ -42,8 +42,7 @@ async function getVideoUrl(videoName) {
         
         if (!storagePath) {
             console.warn(`Vídeo não encontrado no mapeamento: ${videoName}`);
-            // Fallback para o caminho local original
-            return `public/videos/${videoName}`;
+            return `public/${videoName}`;
         }
 
         // Criar referência ao arquivo no Storage
@@ -59,8 +58,8 @@ async function getVideoUrl(videoName) {
         return downloadURL;
     } catch (error) {
         console.error(`❌ Erro ao obter URL do vídeo ${videoName}:`, error);
-        // Fallback para o caminho local original em caso de erro
-        return `public/videos/${videoName}`;
+        // Fallback: arquivos estão em public/ (não public/videos/)
+        return `public/${videoName}`;
     }
 }
 
@@ -78,7 +77,7 @@ async function getVideoUrls(videoNames) {
                 urls[videoName] = await getVideoUrl(videoName);
             } catch (error) {
                 console.error(`Erro ao obter URL do vídeo ${videoName}:`, error);
-                urls[videoName] = `public/videos/${videoName}`; // Fallback
+                urls[videoName] = `public/${videoName}`; // Fallback
             }
         })
     );
