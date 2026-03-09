@@ -1,8 +1,10 @@
 // ===== FIREBASE VIDEOS UTILITY =====
-// Gerenciamento de vídeos no Firebase Storage
+// Gerenciamento de vídeos - usa arquivos locais em public/ (Firebase Storage desativado)
 
-// Mapeamento dos vídeos locais para os caminhos no Firebase Storage
-// Os vídeos ficam na pasta videos/ do bucket Firebase Storage
+// Usar sempre vídeos locais (evita CORS/erros do Firebase Storage)
+const USE_LOCAL_VIDEOS = true;
+
+// Mapeamento dos vídeos locais para os caminhos no Firebase Storage (quando USE_LOCAL_VIDEOS = false)
 const videoMap = {
     'valeria_jul25_reels.mp4': 'videos/valeria_jul25_reels.mp4',
     '4_minha_historia_fev25_reels.mp4': 'videos/4_minha_historia_fev25_reels.mp4',
@@ -23,41 +25,23 @@ const videoUrlCache = {};
  * @returns {Promise<string>} - URL de download do vídeo
  */
 async function getVideoUrl(videoName) {
-    // Verificar cache primeiro
+    if (USE_LOCAL_VIDEOS) {
+        return getLocalVideoUrl(videoName);
+    }
     if (videoUrlCache[videoName]) {
         return videoUrlCache[videoName];
     }
-
     try {
-        // Verificar se Firebase Storage está disponível (pode estar no escopo global)
-        const firebaseStorage = window.firebaseStorage || storage;
-        
-        if (!firebaseStorage) {
-            console.warn('Firebase Storage não está disponível');
-            return getLocalVideoUrl(videoName);
-        }
-
-        // Obter o caminho do Firebase Storage
+        const firebaseStorage = window.firebaseStorage || (typeof storage !== 'undefined' ? storage : null);
+        if (!firebaseStorage) return getLocalVideoUrl(videoName);
         const storagePath = videoMap[videoName];
-        
-        if (!storagePath) {
-            console.warn(`Vídeo não encontrado no mapeamento: ${videoName}`);
-            return getLocalVideoUrl(videoName);
-        }
-
-        // Criar referência ao arquivo no Storage
+        if (!storagePath) return getLocalVideoUrl(videoName);
         const videoRef = firebaseStorage.ref(storagePath);
-        
-        // Obter URL de download
         const downloadURL = await videoRef.getDownloadURL();
-        
-        // Armazenar no cache
         videoUrlCache[videoName] = downloadURL;
-        
-        console.log(`✅ URL obtida para ${videoName}`);
         return downloadURL;
     } catch (error) {
-        console.error(`❌ Erro ao obter URL do vídeo ${videoName}:`, error);
+        console.warn(`Firebase vídeo ${videoName} indisponível, usando local:`, error?.message || error);
         return getLocalVideoUrl(videoName);
     }
 }
