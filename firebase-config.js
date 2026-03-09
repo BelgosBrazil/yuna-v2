@@ -12,15 +12,14 @@ const firebaseConfig = {
   measurementId: "G-2KM6MCD0DX"
 };
 
-// App de vídeos (belgoscrm) - Storage com pasta Yuna
-// Obtenha em: console.firebase.google.com > belgoscrm > Configurações do projeto (ícone engrenagem) > Seus apps
-const firebaseVideoConfig = {
-  apiKey: "COLOQUE_API_KEY_BELGOSCRM",
+// App de vídeos (belgoscrm) - config em firebase-video-config.js
+const firebaseVideoConfig = window.FIREBASE_VIDEO_CONFIG || {
+  apiKey: "",
   authDomain: "belgoscrm.firebaseapp.com",
   projectId: "belgoscrm",
   storageBucket: "belgoscrm.firebasestorage.app",
-  messagingSenderId: "COLOQUE_SENDER_ID",
-  appId: "COLOQUE_APP_ID"
+  messagingSenderId: "",
+  appId: ""
 };
 
 // Inicializar Firebase
@@ -33,7 +32,9 @@ if (typeof firebase !== 'undefined') {
   firestore = firebase.firestore();
 
   // Storage de vídeos: usar belgoscrm (pasta Yuna) quando apiKey estiver configurado
-  const videoConfigReady = firebaseVideoConfig.apiKey && !firebaseVideoConfig.apiKey.includes('COLOQUE');
+  const videoConfigReady = firebaseVideoConfig.apiKey && 
+    !firebaseVideoConfig.apiKey.includes('COLOQUE') && 
+    firebaseVideoConfig.apiKey.length > 10;
   if (videoConfigReady) {
     try {
       const videoApp = firebase.initializeApp(firebaseVideoConfig, 'firebaseVideo');
@@ -46,6 +47,7 @@ if (typeof firebase !== 'undefined') {
     }
   } else {
     storage = firebase.app().storage();
+    console.warn('⚠️ Vídeos: configure firebase-video-config.js com credenciais belgoscrm');
   }
 
   window.firebaseStorage = storage;
