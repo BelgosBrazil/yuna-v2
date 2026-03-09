@@ -2,15 +2,16 @@
 // Gerenciamento de vídeos no Firebase Storage
 
 // Mapeamento dos vídeos locais para os caminhos no Firebase Storage
-// Os vídeos estão na raiz do bucket Firebase Storage
+// Os vídeos ficam na pasta videos/ do bucket Firebase Storage
 const videoMap = {
-    'valeria_jul25_reels.mp4': 'valeria_jul25_reels.mp4',
-    '4_minha_historia_fev25_reels.mp4': '4_minha_historia_fev25_reels.mp4',
-    '5_minha_historia_fev25_reels.mp4': '5_minha_historia_fev25_reels.mp4',
-    // Nomes no HTML correspondem aos nomes no Firebase Storage
-    'Srvanio.mp4': 'Srvanio.mp4',
-    'celia.mp4': 'celia.mp4',
-    'banneryuna.mp4': 'banneryuna.mp4',
+    'valeria_jul25_reels.mp4': 'videos/valeria_jul25_reels.mp4',
+    '4_minha_historia_fev25_reels.mp4': 'videos/4_minha_historia_fev25_reels.mp4',
+    '5_minha_historia_fev25_reels.mp4': 'videos/5_minha_historia_fev25_reels.mp4',
+    'Case_Sr.Vânio_legendado.mp4': 'videos/Case_Sr.Vânio_legendado.mp4',
+    'case Dra. Célia - rev.01.mp4': 'videos/case Dra. Célia - rev.01.mp4',
+    'Srvanio.mp4': 'videos/Srvanio.mp4',
+    'celia.mp4': 'videos/celia.mp4',
+    'banneryuna.mp4': 'videos/banneryuna.mp4',
 };
 
 // Cache de URLs para evitar múltiplas requisições
@@ -229,7 +230,14 @@ async function initializeVideos() {
     
     console.log('✅ Firebase Storage disponível');
 
+    // Mapeamentos para medicos.html e ortopedica.html (public/xxx.mp4)
+    // e pacientes.html (public/videos/xxx.mp4)
     const videoMappings = [
+        { name: 'valeria_jul25_reels.mp4', dataVideo: 'public/valeria_jul25_reels.mp4' },
+        { name: '4_minha_historia_fev25_reels.mp4', dataVideo: 'public/4_minha_historia_fev25_reels.mp4' },
+        { name: '5_minha_historia_fev25_reels.mp4', dataVideo: 'public/5_minha_historia_fev25_reels.mp4' },
+        { name: 'Case_Sr.Vânio_legendado.mp4', dataVideo: 'public/Case_Sr.Vânio_legendado.mp4' },
+        { name: 'case Dra. Célia - rev.01.mp4', dataVideo: 'public/case Dra. Célia - rev.01.mp4' },
         { name: 'valeria_jul25_reels.mp4', dataVideo: 'public/videos/valeria_jul25_reels.mp4' },
         { name: '4_minha_historia_fev25_reels.mp4', dataVideo: 'public/videos/4_minha_historia_fev25_reels.mp4' },
         { name: '5_minha_historia_fev25_reels.mp4', dataVideo: 'public/videos/5_minha_historia_fev25_reels.mp4' },
