@@ -14,6 +14,7 @@ const videoMap = {
     'Srvanio.mp4': 'Yuna/Srvanio.mp4',
     'celia.mp4': 'Yuna/celia.mp4',
     'banneryuna.mp4': 'Yuna/banneryuna.mp4',
+    'VideoYoutube.mp4': 'Yuna/VideoYoutube.mp4',
 };
 
 // Cache de URLs para evitar múltiplas requisições
@@ -285,8 +286,8 @@ async function loadInstitutionalVideo() {
             return;
         }
         
-        // Obter URL do Firebase
-        const firebaseUrl = await getVideoUrl('banneryuna.mp4');
+        // Obter URL (VideoYoutube.mp4 - Firebase ou local)
+        const firebaseUrl = await getVideoUrl('VideoYoutube.mp4');
         
         // Atualizar source
         const sourceTag = videoElement.querySelector('source');

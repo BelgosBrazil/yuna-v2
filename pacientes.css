@@ -2159,7 +2159,7 @@ section {
 .estrutura-categoria h3 {
     font-size: 1.1rem;
     font-weight: 600;
-    color: var(--primary-color);
+    color: var(--text-dark);
     margin-bottom: 0.5rem;
 }
 

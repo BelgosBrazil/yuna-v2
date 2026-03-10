@@ -15,5 +15,6 @@ const EXTERNAL_VIDEO_URLS = {
   'Srvanio.mp4': `${BASE}/${encoded('Yuna/Srvanio.mp4')}?alt=media`,
   'celia.mp4': `${BASE}/${encoded('Yuna/celia.mp4')}?alt=media`,
   'banneryuna.mp4': `${BASE}/${encoded('Yuna/banneryuna.mp4')}?alt=media`,
+  'VideoYoutube.mp4': `${BASE}/${encoded('Yuna/VideoYoutube.mp4')}?alt=media`,
 };
 window.EXTERNAL_VIDEO_URLS = EXTERNAL_VIDEO_URLS;
