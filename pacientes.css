@@ -2111,7 +2111,11 @@ section {
 .estrutura-grid-modern {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    height: 420px;
+    gap: 1.5rem;
+    height: 480px;
+    margin-bottom: 3rem;
+    max-width: 100%;
+    padding: 0 calc(2rem + 48px + 2rem);
 }
 
 /* Foto Principal - Esquerda */
@@ -2139,6 +2143,8 @@ section {
     justify-content: center;
     height: 100%;
     overflow: hidden;
+    border-left: 4px solid var(--secondary-color);
+    border-radius: 12px;
 }
 
 .estrutura-intro {
@@ -2187,6 +2193,16 @@ section {
 
 .info-item:last-child {
     border-bottom: none;
+}
+
+.estrutura-section .info-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: var(--secondary-color);
 }
 
 .info-item::before {
@@ -2680,6 +2696,8 @@ body.nav-open {
     .estrutura-grid-modern {
         grid-template-columns: 1fr;
         height: auto;
+        margin-bottom: 2rem;
+        padding: 0 var(--spacing-md);
     }
 
     .estrutura-main-image {
