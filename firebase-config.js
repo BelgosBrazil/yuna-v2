@@ -28,7 +28,18 @@ let app, analytics, storage, firestore;
 // Verificar se Firebase está disponível (carregado via CDN)
 if (typeof firebase !== 'undefined') {
   app = firebase.initializeApp(firebaseConfig);
-  analytics = firebase.analytics();
+  const analyticsEnabled = window.ENABLE_FIREBASE_ANALYTICS === true;
+  if (analyticsEnabled && typeof firebase.analytics === 'function') {
+    try {
+      analytics = firebase.analytics();
+    } catch (e) {
+      analytics = null;
+      console.warn('Analytics desativado:', e.message);
+    }
+  } else {
+    analytics = null;
+    console.warn('Analytics desativado (ENABLE_FIREBASE_ANALYTICS !== true).');
+  }
   firestore = firebase.firestore();
 
   // Storage de vídeos: usar belgoscrm (pasta Yuna) quando apiKey estiver configurado

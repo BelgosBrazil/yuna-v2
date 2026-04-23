@@ -42,7 +42,11 @@ window.addEventListener('scroll', () => {
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
         e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
+        const targetSelector = this.getAttribute('href');
+        if (!targetSelector || targetSelector === '#') {
+            return;
+        }
+        const target = document.querySelector(targetSelector);
 
         if (target) {
             const headerOffset = 80;
@@ -439,41 +443,42 @@ function toFirestoreValue(value) {
 }
 
 async function addDocWithFallback(db, collectionName, payload) {
-    try {
-        return await db.collection(collectionName).add(payload);
-    } catch (err) {
-        const message = String(err?.message || '');
-        const isClientBlocked = message.includes('ERR_BLOCKED_BY_CLIENT');
-        if (!isClientBlocked) throw err;
+    const appOptions = window.firebaseApp?.options || {};
+    const projectId = appOptions.projectId || (typeof firebaseConfig !== 'undefined' ? firebaseConfig.projectId : '');
+    const apiKey = appOptions.apiKey || (typeof firebaseConfig !== 'undefined' ? firebaseConfig.apiKey : '');
 
-        const appOptions = window.firebaseApp?.options || {};
-        const projectId = appOptions.projectId || (typeof firebaseConfig !== 'undefined' ? firebaseConfig.projectId : '');
-        const apiKey = appOptions.apiKey || (typeof firebaseConfig !== 'undefined' ? firebaseConfig.apiKey : '');
-        if (!projectId || !apiKey) throw err;
+    const restPayload = {
+        fields: {}
+    };
+    Object.entries(payload).forEach(([key, value]) => {
+        if (key === 'createdAt') {
+            restPayload.fields[key] = { timestampValue: new Date().toISOString() };
+        } else {
+            restPayload.fields[key] = toFirestoreValue(value);
+        }
+    });
 
-        const restPayload = {
-            fields: {}
-        };
-        Object.entries(payload).forEach(([key, value]) => {
-            if (key === 'createdAt') {
-                restPayload.fields[key] = { timestampValue: new Date().toISOString() };
-            } else {
-                restPayload.fields[key] = toFirestoreValue(value);
-            }
-        });
-
+    if (projectId && apiKey) {
         const endpoint = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/${collectionName}?key=${apiKey}`;
         const response = await fetch(endpoint, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(restPayload)
         });
-        if (!response.ok) {
-            const body = await response.text();
-            throw new Error(`REST fallback failed (${response.status}): ${body}`);
+        if (response.ok) {
+            return response.json();
         }
-        return response.json();
+
+        const body = await response.text();
+        const isSuspendedKey = response.status === 403 && body.includes('has been suspended');
+        if (isSuspendedKey) {
+            throw new Error('FIREBASE_API_KEY_SUSPENDED');
+        }
+
+        throw new Error(`REST write failed (${response.status}): ${body}`);
     }
+
+    return db.collection(collectionName).add(payload);
 }
 
 const telefoneInput = document.getElementById('telefone');
@@ -583,8 +588,8 @@ if (callForm) {
                 statusEl.classList.remove('success');
                 statusEl.classList.add('error');
                 const errorMessage = String(err?.message || '');
-                statusEl.textContent = errorMessage.includes('api_key') || errorMessage.includes('PERMISSION_DENIED')
-                    ? 'Serviço temporariamente indisponível. Tente novamente em instantes.'
+                statusEl.textContent = errorMessage.includes('FIREBASE_API_KEY_SUSPENDED') || errorMessage.includes('api_key') || errorMessage.includes('PERMISSION_DENIED')
+                    ? 'Serviço de envio indisponível: chave Firebase suspensa. Regularize no Google Cloud.'
                     : 'Erro ao enviar. Tente novamente.';
             }
             console.error(err);
