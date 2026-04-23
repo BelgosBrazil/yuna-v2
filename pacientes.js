@@ -525,6 +525,24 @@ if (openCallFormBtn) {
     });
 }
 
+function formatWhatsAppNumber(value) {
+    const digits = String(value || '').replace(/\D/g, '').slice(0, 11);
+    if (digits.length === 0) return '';
+    if (digits.length <= 2) return `(${digits}`;
+    if (digits.length <= 7) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+    return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+}
+
+const telefoneInput = document.getElementById('telefone');
+if (telefoneInput) {
+    telefoneInput.setAttribute('inputmode', 'numeric');
+    telefoneInput.setAttribute('maxlength', '15');
+    telefoneInput.setAttribute('placeholder', '(11) 99999-9999');
+    telefoneInput.addEventListener('input', () => {
+        telefoneInput.value = formatWhatsAppNumber(telefoneInput.value);
+    });
+}
+
 const callForm = document.getElementById('callRequestForm');
 if (callForm) {
     callForm.addEventListener('submit', async (e) => {
@@ -553,7 +571,10 @@ if (callForm) {
                 statusEl.style.display = 'block';
                 statusEl.classList.remove('success');
                 statusEl.classList.add('error');
-                statusEl.textContent = 'Erro ao enviar. Tente novamente.';
+                const errorMessage = String(err?.message || '');
+                statusEl.textContent = errorMessage.includes('api_key') || errorMessage.includes('PERMISSION_DENIED')
+                    ? 'Serviço temporariamente indisponível. Tente novamente em instantes.'
+                    : 'Erro ao enviar. Tente novamente.';
             }
         } finally {
             if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Enviar'; }
