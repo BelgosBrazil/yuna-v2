@@ -533,6 +533,62 @@ function formatWhatsAppNumber(value) {
     return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
 }
 
+function toFirestoreValue(value) {
+    if (value === null || value === undefined) return { nullValue: null };
+    if (value instanceof Date) return { timestampValue: value.toISOString() };
+    if (Array.isArray(value)) {
+        return { arrayValue: { values: value.map((item) => toFirestoreValue(item)) } };
+    }
+    if (typeof value === 'object') {
+        const fields = {};
+        Object.entries(value).forEach(([key, val]) => {
+            fields[key] = toFirestoreValue(val);
+        });
+        return { mapValue: { fields } };
+    }
+    if (typeof value === 'boolean') return { booleanValue: value };
+    if (typeof value === 'number') return Number.isInteger(value) ? { integerValue: String(value) } : { doubleValue: value };
+    return { stringValue: String(value) };
+}
+
+async function addDocWithFallback(db, collectionName, payload) {
+    try {
+        return await db.collection(collectionName).add(payload);
+    } catch (err) {
+        const message = String(err?.message || '');
+        const isClientBlocked = message.includes('ERR_BLOCKED_BY_CLIENT');
+        if (!isClientBlocked) throw err;
+
+        const appOptions = window.firebaseApp?.options || {};
+        const projectId = appOptions.projectId || (typeof firebaseConfig !== 'undefined' ? firebaseConfig.projectId : '');
+        const apiKey = appOptions.apiKey || (typeof firebaseConfig !== 'undefined' ? firebaseConfig.apiKey : '');
+        if (!projectId || !apiKey) throw err;
+
+        const restPayload = {
+            fields: {}
+        };
+        Object.entries(payload).forEach(([key, value]) => {
+            if (key === 'createdAt') {
+                restPayload.fields[key] = { timestampValue: new Date().toISOString() };
+            } else {
+                restPayload.fields[key] = toFirestoreValue(value);
+            }
+        });
+
+        const endpoint = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/${collectionName}?key=${apiKey}`;
+        const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(restPayload)
+        });
+        if (!response.ok) {
+            const body = await response.text();
+            throw new Error(`REST fallback failed (${response.status}): ${body}`);
+        }
+        return response.json();
+    }
+}
+
 const telefoneInput = document.getElementById('telefone');
 if (telefoneInput) {
     telefoneInput.setAttribute('inputmode', 'numeric');
@@ -558,7 +614,7 @@ if (callForm) {
             const db = window.firebaseFirestore;
             if (!db) throw new Error('Firestore indisponível');
             const ts = firebase.firestore.FieldValue.serverTimestamp();
-            await db.collection('messages').add({ nome, email, telefone, mensagem, createdAt: ts });
+            await addDocWithFallback(db, 'messages', { nome, email, telefone, mensagem, createdAt: ts });
             if (statusEl) {
                 statusEl.style.display = 'block';
                 statusEl.classList.remove('error');
